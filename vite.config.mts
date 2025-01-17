@@ -9,6 +9,7 @@ export default defineConfig({
       name: 'IranProvinceCitySelector',
       formats: ['es', 'umd'],
       fileName: format => `index.${format}.js`,
+      cssCodeSplit: true,
     },
     rollupOptions: {
       external: ['react'],
