@@ -4,12 +4,12 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   plugins: [react()],
   build: {
+    cssCodeSplit: true,
     lib: {
       entry: './src/index.ts',
       name: 'IranProvinceCitySelector',
       formats: ['es', 'umd'],
       fileName: format => `index.${format}.js`,
-      cssCodeSplit: true,
     },
     rollupOptions: {
       external: ['react'],
