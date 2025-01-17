@@ -156,7 +156,10 @@ Two variants are supported:
 ### Basic Usage
 
 ```jsx
-<ProvinceCitySelect onChange={value => console.log(value)} />
+import { ProvinceCitySelect } from 'iran-province-city-selector'
+import 'iran-province-city-selector/dist/index.css'
+
+;<ProvinceCitySelect onChange={value => console.log(value)} />
 ```
 
 ### With Initial Value
