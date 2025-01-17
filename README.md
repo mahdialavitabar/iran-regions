@@ -33,7 +33,7 @@ yarn add iran-province-city-selector
 ## Quick Start
 
 ```jsx
-import { ProvinceCitySelect } from 'iran-province-city-selector'
+import ProvinceCitySelect from 'iran-province-city-selector'
 import 'iran-province-city-selector/dist/index.css'
 
 function App() {
@@ -156,9 +156,8 @@ Two variants are supported:
 ### Basic Usage
 
 ```jsx
-import { ProvinceCitySelect } from 'iran-province-city-selector'
+import ProvinceCitySelect from 'iran-province-city-selector'
 import 'iran-province-city-selector/dist/index.css'
-
 ;<ProvinceCitySelect onChange={value => console.log(value)} />
 ```
 
@@ -212,7 +211,7 @@ import 'iran-province-city-selector/dist/index.css'
 The package includes TypeScript definitions. Types can be imported:
 
 ```typescript
-import { ProvinceCitySelectProps, Province } from 'iran-province-city-selector'
+import ProvinceCitySelectProps, { Province } from 'iran-province-city-selector'
 ```
 
 ## Browser Support
