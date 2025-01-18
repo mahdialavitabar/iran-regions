@@ -1,4 +1,4 @@
-# Detailed Documentation for iran-regions
+#Documentation and Tips...
 
 ## Installation Guide
 
@@ -307,7 +307,7 @@ import ProvinceCitySelectProps, { Province } from 'iran-regions'
 - Edge
 - Opera
 
-<a href="https://www.coffeebede.com/mahdialavitabar"><img class="img-fluid" src="https://coffeebede.ir/DashboardTemplateV2/app-assets/images/banner/default-yellow.svg" /></a>
+
 
 ## Contributing
 
@@ -322,6 +322,8 @@ import ProvinceCitySelectProps, { Province } from 'iran-regions'
 ISC License - See [LICENSE](LICENSE) for details.
 
 ## Contact
+
+<a href="https://www.coffeebede.com/mahdialavitabar"><img class="img-fluid" src="https://coffeebede.ir/DashboardTemplateV2/app-assets/images/banner/default-yellow.svg" /></a>
 
 - Website: [https://www.mahdialavitabar.com/en](https://www.mahdialavitabar.com/en)
 - GitHub: [https://github.com/mahdialavitabar](https://github.com/mahdialavitabar)
