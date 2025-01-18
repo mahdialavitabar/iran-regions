@@ -1,32 +1,8 @@
-# Iran Regions Picker
+# Detailed Documentation for iran-regions
 
-[![npm version](https://img.shields.io/npm/v/iran-regions.svg)](https://www.npmjs.com/package/iran-regions)
-[![license](https://img.shields.io/npm/l/iran-regions.svg)](https://github.com/meyt/iran-regions/blob/main/LICENSE)
-[![npm downloads](https://img.shields.io/npm/dm/iran-regions.svg)](https://www.npmjs.com/package/iran-regions)
+## Installation Guide
 
-A React component for selecting Iranian provinces and cities with support for multiple input types, themes, and customization options.
-
-## Features
-
-- 🌍 Complete list of Iranian provinces and cities
-- 🎨 Multiple themes (light/dark)
-- 📱 Responsive design
-- ⌨️ Multiple input types (select/autocomplete/combobox)
-- 🎯 TypeScript support
-- 🔍 Search functionality
-- 🎭 Different variants and sizes
-- ♿ Accessibility support
-- 🌐 RTL support
-- 🎛️ Highly customizable
-- 🔥 Auto caching data and UI for improved performance
-
-## Installation
-
-```bash
-npm install iran-regions
-```
-
-or
+To install the `iran-regions` package, run the following command:
 
 ```bash
 yarn add iran-regions
@@ -34,18 +10,24 @@ yarn add iran-regions
 
 ## Quick Start
 
+Here is a basic example of how to use the `ProvinceCitySelect` component:
+
 ```jsx
 import ProvinceCitySelect from 'iran-regions'
 import 'iran-regions/dist/index.css'
+import { useState } from 'react'
 
 function App() {
+  const [location, setLocation] = useState({ province: '', city: '' })
+
   const handleChange = value => {
     console.log('Selected:', value)
-    // value = { province: "تهران", city: "تهران" }
+    setLocation(value)
   }
 
   return (
     <ProvinceCitySelect
+      value={location}
       onChange={handleChange}
       theme="light"
       size="md"
@@ -53,6 +35,8 @@ function App() {
     />
   )
 }
+
+export default App
 ```
 
 ## API Reference
@@ -333,27 +317,13 @@ import ProvinceCitySelectProps, { Province } from 'iran-regions'
 
 ISC License - See [LICENSE](LICENSE) for details.
 
-## Documentation
+## Contact
 
-- [Detailed documentation](docs/README.md)
-- [Storybook Documentation](http://localhost:6006) - Online demo soon...
+- Website: [https://www.mahdialavitabar.com/en](https://www.mahdialavitabar.com/en)
+- GitHub: [https://github.com/mahdialavitabar](https://github.com/mahdialavitabar)
+- npm: [https://www.npmjs.com/~mahdialavitabar](https://www.npmjs.com/~mahdialavitabar)
+- LinkedIn: [https://www.linkedin.com/in/mehdialavitabar/](https://www.linkedin.com/in/mehdialavitabar/)
 
-## More Details
+## Storybook Documentation
 
-For more detailed information including:
-
-- Installation guide with all required dependencies and environment setup
-- Theme customization examples
-- Integration testing examples
-- Edge case demonstrations
-- Loading and error states
-- Component composition patterns
-- Version compatibility information
-- Contributing guidelines
-- License details
-- Support channels
-- Changelog and migration guides
-- Security considerations
-- Browser/device compatibility matrix
-
-check the `docs` folder and the Storybook documentation.
+For an interactive demo and more detailed examples, visit the [Storybook Documentation](http://localhost:6006).
