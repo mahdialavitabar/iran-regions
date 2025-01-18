@@ -1,5 +1,13 @@
 # Documentation and Tips...
 
+[![npm version](https://img.shields.io/npm/v/iran-regions.svg)](https://www.npmjs.com/package/iran-regions)
+[![license](https://img.shields.io/npm/l/iran-regions.svg)](https://github.com/meyt/iran-regions/blob/main/LICENSE)
+[![npm downloads](https://img.shields.io/npm/dm/iran-regions.svg)](https://www.npmjs.com/package/iran-regions)
+
+## Installation Guide
+
+A React component for selecting Iranian provinces and cities with support for multiple input types, themes, and customization options.
+
 ## Installation Guide
 
 To install the `iran-regions` package, run the following command:
@@ -13,6 +21,20 @@ yarn add iran-regions
 ```
 
 ## Quick Start
+
+## Features
+
+- 🌍 Complete list of Iranian provinces and cities
+- 🎨 Multiple themes (light/dark)
+- 📱 Responsive design
+- ⌨️ Multiple input types (select/autocomplete/combobox)
+- 🎯 TypeScript support
+- 🔍 Search functionality
+- 🎭 Different variants and sizes
+- ♿ Accessibility support
+- 🌐 RTL support
+- 🎛️ Highly customizable
+- 🔥 Auto caching data and UI for improved performance
 
 Here is a basic example of how to use the `ProvinceCitySelect` component:
 
