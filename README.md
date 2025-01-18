@@ -2,7 +2,6 @@
 
 A React component for selecting Iranian provinces and cities with support for multiple input types, themes, and customization options.
 [![npm version](https://img.shields.io/npm/v/iran-regions.svg)](https://www.npmjs.com/package/iran-regions)
-
 [![license](https://img.shields.io/npm/l/iran-regions.svg)](https://github.com/meyt/iran-regions/blob/main/LICENSE)
 
 ## Features
@@ -20,22 +19,21 @@ A React component for selecting Iranian provinces and cities with support for mu
 
 ## Installation
 
-````bash
+```bash
 npm install iran-regions
-
+```
 
 or
 
 ```bash
 yarn add iran-regions
-
+```
 
 ## Quick Start
 
 ```jsx
 import ProvinceCitySelect from 'iran-regions'
 import 'iran-regions/dist/index.css'
-
 
 function App() {
   const handleChange = value => {
@@ -159,6 +157,7 @@ Two variants are supported:
 ```jsx
 import ProvinceCitySelect from 'iran-regions'
 import 'iran-regions/dist/index.css'
+
 ;<ProvinceCitySelect onChange={value => console.log(value)} />
 ```
 
@@ -270,5 +269,5 @@ For more detailed information including:
 - Changelog and migration guides
 - Security considerations
 - Browser/device compatibility matrix
-  check the `docs` folder and the Storybook documentation.
-````
+
+check the `docs` folder and the Storybook documentation.
