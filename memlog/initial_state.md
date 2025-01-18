@@ -1,3 +1,0 @@
-# Initial State
-
-Project initialized.
