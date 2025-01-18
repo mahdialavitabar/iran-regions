@@ -4,5 +4,6 @@ dist
 .DS_Store
 build
 *.log
-
+memlog
+.memlog
 *storybook.log
