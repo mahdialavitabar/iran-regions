@@ -1,6 +1,6 @@
 {
   "name": "iran-regions",
-  "version": "1.1.8",
+  "version": "1.1.9",
   "description": "A React component for selecting Iranian provinces and cities.",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
