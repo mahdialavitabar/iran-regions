@@ -1,8 +1,10 @@
 # Iran Regions Picker
 
-A React component for selecting Iranian provinces and cities with support for multiple input types, themes, and customization options.
 [![npm version](https://img.shields.io/npm/v/iran-regions.svg)](https://www.npmjs.com/package/iran-regions)
 [![license](https://img.shields.io/npm/l/iran-regions.svg)](https://github.com/meyt/iran-regions/blob/main/LICENSE)
+[![npm downloads](https://img.shields.io/npm/dm/iran-regions.svg)](https://www.npmjs.com/package/iran-regions)
+
+A React component for selecting Iranian provinces and cities with support for multiple input types, themes, and customization options.
 
 ## Features
 
@@ -32,14 +34,14 @@ yarn add iran-regions
 ## Quick Start
 
 ```jsx
-import ProvinceCitySelect from 'iran-regions'
-import 'iran-regions/dist/index.css'
+import ProvinceCitySelect from 'iran-regions';
+import 'iran-regions/dist/index.css';
 
 function App() {
   const handleChange = value => {
-    console.log('Selected:', value)
+    console.log('Selected:', value);
     // value = { province: "تهران", city: "تهران" }
-  }
+  };
 
   return (
     <ProvinceCitySelect
@@ -48,7 +50,7 @@ function App() {
       size="md"
       variant="outlined"
     />
-  )
+  );
 }
 ```
 
@@ -155,10 +157,10 @@ Two variants are supported:
 ### Basic Usage
 
 ```jsx
-import ProvinceCitySelect from 'iran-regions'
-import 'iran-regions/dist/index.css'
+import ProvinceCitySelect from 'iran-regions';
+import 'iran-regions/dist/index.css';
 
-;<ProvinceCitySelect onChange={value => console.log(value)} />
+<ProvinceCitySelect onChange={value => console.log(value)} />
 ```
 
 ### With Initial Value
@@ -211,7 +213,7 @@ import 'iran-regions/dist/index.css'
 The package includes TypeScript definitions. Types can be imported:
 
 ```typescript
-import ProvinceCitySelectProps, { Province } from 'iran-regions'
+import ProvinceCitySelectProps, { Province } from 'iran-regions';
 ```
 
 ## Browser Support
