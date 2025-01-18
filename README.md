@@ -5,6 +5,10 @@
 To install the `iran-regions` package, run the following command:
 
 ```bash
+npm install iran-regions
+```
+
+```bash
 yarn add iran-regions
 ```
 
