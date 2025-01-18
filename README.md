@@ -1,4 +1,4 @@
-#Documentation and Tips...
+# Documentation and Tips...
 
 ## Installation Guide
 
@@ -306,8 +306,6 @@ import ProvinceCitySelectProps, { Province } from 'iran-regions'
 - Safari
 - Edge
 - Opera
-
-
 
 ## Contributing
 
