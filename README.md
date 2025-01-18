@@ -1,9 +1,9 @@
-# Iran Province City Selector
+# Iran Regions Picker
 
 A React component for selecting Iranian provinces and cities with support for multiple input types, themes, and customization options.
+[![npm version](https://img.shields.io/npm/v/iran-regions.svg)](https://www.npmjs.com/package/iran-regions)
 
-[![npm version](https://img.shields.io/npm/v/iran-province-city-selector.svg)](https://www.npmjs.com/package/iran-province-city-selector)
-[![license](https://img.shields.io/npm/l/iran-province-city-selector.svg)](https://github.com/meyt/iran-province-city-selector/blob/main/LICENSE)
+[![license](https://img.shields.io/npm/l/iran-regions.svg)](https://github.com/meyt/iran-regions/blob/main/LICENSE)
 
 ## Features
 
@@ -20,21 +20,22 @@ A React component for selecting Iranian provinces and cities with support for mu
 
 ## Installation
 
-```bash
-npm install iran-province-city-selector
-```
+````bash
+npm install iran-regions
+
 
 or
 
 ```bash
-yarn add iran-province-city-selector
-```
+yarn add iran-regions
+
 
 ## Quick Start
 
 ```jsx
-import ProvinceCitySelect from 'iran-province-city-selector'
-import 'iran-province-city-selector/dist/index.css'
+import ProvinceCitySelect from 'iran-regions'
+import 'iran-regions/dist/index.css'
+
 
 function App() {
   const handleChange = value => {
@@ -156,8 +157,8 @@ Two variants are supported:
 ### Basic Usage
 
 ```jsx
-import ProvinceCitySelect from 'iran-province-city-selector'
-import 'iran-province-city-selector/dist/index.css'
+import ProvinceCitySelect from 'iran-regions'
+import 'iran-regions/dist/index.css'
 ;<ProvinceCitySelect onChange={value => console.log(value)} />
 ```
 
@@ -211,7 +212,7 @@ import 'iran-province-city-selector/dist/index.css'
 The package includes TypeScript definitions. Types can be imported:
 
 ```typescript
-import ProvinceCitySelectProps, { Province } from 'iran-province-city-selector'
+import ProvinceCitySelectProps, { Province } from 'iran-regions'
 ```
 
 ## Browser Support
@@ -237,7 +238,7 @@ ISC License - See [LICENSE](LICENSE) for details.
 ## Documentation
 
 - [Detailed documentation](docs/README.md)
-- [Storybook Documentation](http://localhost:6006)
+- [Storybook Documentation](http://localhost:6006) - Online demo soon...
 
 ## More Details
 
@@ -270,3 +271,4 @@ For more detailed information including:
 - Security considerations
 - Browser/device compatibility matrix
   check the `docs` folder and the Storybook documentation.
+````

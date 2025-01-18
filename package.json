@@ -1,6 +1,5 @@
 {
-  "name": "iran-province-city-selector",
-  "version": "1.0.5",
+  "name": "iran-regions",
   "description": "A React component for selecting Iranian provinces and cities.",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
@@ -23,7 +22,7 @@
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "https://github.com/user/iran-province-city-selector"
+    "url": "https://github.com/mahdialavitabar/iran-regions"
   },
   "files": [
     "dist"
