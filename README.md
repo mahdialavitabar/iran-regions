@@ -50,6 +50,7 @@ export default App
   - Callback function that is called when the selected province changes. It receives the new province as an argument.
 
 - **onCityChange**: `(city: string) => void`
+
   - Callback function that is called when the selected city changes. It receives the new city as an argument.
 
 #### Custom Styles
@@ -67,6 +68,7 @@ export default App
   - Custom styles for the error message.
 
 - **loadingStyle**: `React.CSSProperties`
+
   - Custom styles for the loading indicator.
 
 | Prop               | Type                                                | Default                                          | Description                           |
@@ -304,6 +306,8 @@ import ProvinceCitySelectProps, { Province } from 'iran-regions'
 - Safari
 - Edge
 - Opera
+
+<a href="https://www.coffeebede.com/mahdialavitabar"><img class="img-fluid" src="https://coffeebede.ir/DashboardTemplateV2/app-assets/images/banner/default-yellow.svg" /></a>
 
 ## Contributing
 
