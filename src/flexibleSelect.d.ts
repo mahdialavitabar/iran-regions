@@ -20,5 +20,5 @@ type FlexibleInputProps = {
     className?: string;
     style?: React.CSSProperties;
 };
-declare const FlexibleInput: React.FC<FlexibleInputProps>;
-export default FlexibleInput;
+declare const _default: React.NamedExoticComponent<FlexibleInputProps>;
+export default _default;

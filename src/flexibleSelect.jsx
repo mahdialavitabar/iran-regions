@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import './flexibleSelect.css';
 var FlexibleInput = function (_a) {
     var value = _a.value, onChange = _a.onChange, options = _a.options, _b = _a.inputType, inputType = _b === void 0 ? 'select' : _b, _c = _a.placeholder, placeholder = _c === void 0 ? '' : _c, _d = _a.disabled, disabled = _d === void 0 ? false : _d, _e = _a.required, required = _e === void 0 ? false : _e, _f = _a.theme, theme = _f === void 0 ? 'light' : _f, _g = _a.size, size = _g === void 0 ? 'md' : _g, _h = _a.variant, variant = _h === void 0 ? 'outlined' : _h, label = _a.label, _j = _a.error, error = _j === void 0 ? false : _j, _k = _a.className, className = _k === void 0 ? '' : _k, style = _a.style;
@@ -86,4 +86,4 @@ var FlexibleInput = function (_a) {
         </div>)}
     </div>);
 };
-export default FlexibleInput;
+export default memo(FlexibleInput);

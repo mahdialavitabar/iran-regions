@@ -15,13 +15,11 @@ export type ProvinceCitySelectProps = {
         province: string;
         city: string;
     }) => void;
-    provinces: Province[];
     theme?: 'light' | 'dark';
     size?: 'sm' | 'md' | 'lg';
     variant?: 'outlined' | 'filled';
     isRequired?: boolean;
     isDisabled?: boolean;
-    isLoading?: boolean;
     placeholders?: {
         province?: string;
         city?: string;

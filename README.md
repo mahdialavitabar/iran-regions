@@ -18,6 +18,7 @@ A React component for selecting Iranian provinces and cities with support for mu
 - ♿ Accessibility support
 - 🌐 RTL support
 - 🎛️ Highly customizable
+- 🔥 Auto caching data and UI for improved performance
 
 ## Installation
 
@@ -34,14 +35,14 @@ yarn add iran-regions
 ## Quick Start
 
 ```jsx
-import ProvinceCitySelect from 'iran-regions';
-import 'iran-regions/dist/index.css';
+import ProvinceCitySelect from 'iran-regions'
+import 'iran-regions/dist/index.css'
 
 function App() {
   const handleChange = value => {
-    console.log('Selected:', value);
+    console.log('Selected:', value)
     // value = { province: "تهران", city: "تهران" }
-  };
+  }
 
   return (
     <ProvinceCitySelect
@@ -50,7 +51,7 @@ function App() {
       size="md"
       variant="outlined"
     />
-  );
+  )
 }
 ```
 
@@ -58,23 +59,53 @@ function App() {
 
 ### ProvinceCitySelect Props
 
-| Prop             | Type                                                | Default                                          | Description                           |
-| ---------------- | --------------------------------------------------- | ------------------------------------------------ | ------------------------------------- |
-| value            | { province: string; city: string }                  | { province: '', city: '' }                       | Selected province and city            |
-| onChange         | (value: { province: string; city: string }) => void | -                                                | Callback when selection changes       |
-| selectorType     | 'select' \| 'autocomplete' \| 'combobox'            | 'select'                                         | Type of input to display              |
-| theme            | 'light' \| 'dark'                                   | 'light'                                          | Color theme                           |
-| size             | 'sm' \| 'md' \| 'lg'                                | 'md'                                             | Component size                        |
-| variant          | 'outlined' \| 'filled'                              | 'outlined'                                       | Visual variant                        |
-| isRequired       | boolean                                             | false                                            | Whether fields are required           |
-| isDisabled       | boolean                                             | false                                            | Whether component is disabled         |
-| isLoading        | boolean                                             | false                                            | Whether component is in loading state |
-| errorMessage     | string                                              | ''                                               | Error message to display              |
-| placeholders     | { province?: string; city?: string }                | { province: 'انتخاب استان', city: 'انتخاب شهر' } | Input placeholders                    |
-| labels           | { province?: string; city?: string }                | { province: 'استان', city: 'شهر' }               | Field labels                          |
-| className        | string                                              | ''                                               | Additional CSS class                  |
-| onProvinceChange | (province: string) => void                          | -                                                | Callback when province changes        |
-| onCityChange     | (city: string) => void                              | -                                                | Callback when city changes            |
+#### Callbacks
+
+- **onProvinceChange**: `(province: string) => void`
+
+  - Callback function that is called when the selected province changes. It receives the new province as an argument.
+
+- **onCityChange**: `(city: string) => void`
+  - Callback function that is called when the selected city changes. It receives the new city as an argument.
+
+#### Custom Styles
+
+- **provinceInputStyle**: `React.CSSProperties`
+
+  - Custom styles for the province input field.
+
+- **cityInputStyle**: `React.CSSProperties`
+
+  - Custom styles for the city input field.
+
+- **errorStyle**: `React.CSSProperties`
+
+  - Custom styles for the error message.
+
+- **loadingStyle**: `React.CSSProperties`
+  - Custom styles for the loading indicator.
+
+| Prop               | Type                                                | Default                                          | Description                           |
+| ------------------ | --------------------------------------------------- | ------------------------------------------------ | ------------------------------------- |
+| value              | { province: string; city: string }                  | { province: '', city: '' }                       | Selected province and city            |
+| onChange           | (value: { province: string; city: string }) => void | -                                                | Callback when selection changes       |
+| selectorType       | 'select' \| 'autocomplete' \| 'combobox'            | 'select'                                         | Type of input to display              |
+| theme              | 'light' \| 'dark'                                   | 'light'                                          | Color theme                           |
+| size               | 'sm' \| 'md' \| 'lg'                                | 'md'                                             | Component size                        |
+| variant            | 'outlined' \| 'filled'                              | 'outlined'                                       | Visual variant                        |
+| isRequired         | boolean                                             | false                                            | Whether fields are required           |
+| isDisabled         | boolean                                             | false                                            | Whether component is disabled         |
+| isLoading          | boolean                                             | false                                            | Whether component is in loading state |
+| errorMessage       | string                                              | ''                                               | Error message to display              |
+| placeholders       | { province?: string; city?: string }                | { province: 'انتخاب استان', city: 'انتخاب شهر' } | Input placeholders                    |
+| labels             | { province?: string; city?: string }                | { province: 'استان', city: 'شهر' }               | Field labels                          |
+| className          | string                                              | ''                                               | Additional CSS class                  |
+| onProvinceChange   | (province: string) => void                          | -                                                | Callback when province changes        |
+| onCityChange       | (city: string) => void                              | -                                                | Callback when city changes            |
+| provinceInputStyle | React.CSSProperties                                 | -                                                | Custom styles for province input      |
+| cityInputStyle     | React.CSSProperties                                 | -                                                | Custom styles for city input          |
+| errorStyle         | React.CSSProperties                                 | -                                                | Custom styles for error message       |
+| loadingStyle       | React.CSSProperties                                 | -                                                | Custom styles for loading indicator   |
 
 ### Styling
 
@@ -154,13 +185,79 @@ Two variants are supported:
 
 ## Examples
 
+### Data Fetching in App.tsx
+
+The `App.tsx` file includes a mechanism to fetch provinces data from a URL and cache it in `localStorage`. This ensures that the data is only fetched once and reused on subsequent renders.
+
+```jsx
+useEffect(() => {
+  const fetchProvinces = async () => {
+    const cachedData = localStorage.getItem('provincesData')
+    if (cachedData) {
+      const data = JSON.parse(cachedData)
+      if (Array.isArray(data)) {
+        console.log('Using cached data:', data)
+        setProvinces(data)
+      } else {
+        console.error('Cached data is not an array:', data)
+      }
+    } else {
+      try {
+        const response = await fetch(
+          'https://gist.githubusercontent.com/mahdialavitabar/115d131d6fe1f56e1f177aa4c741739d/raw/a070a0fe4f82a8a378c67d42abda3046134ed97c/data.json'
+        )
+        console.log('Response received:', response)
+        if (!response.ok) {
+          throw new Error('Network response was not ok')
+        }
+        const data = await response.json()
+        console.log(data)
+
+        if (Array.isArray(data)) {
+          console.log('Fetched data:', data) // Add this line to log the fetched data
+          setProvinces(data)
+          localStorage.setItem('provincesData', JSON.stringify(data))
+        } else {
+          console.error('Fetched data is not an array:', data)
+        }
+      } catch (error) {
+        console.error('Error fetching provinces data:', error)
+      }
+    }
+  }
+  fetchProvinces()
+}, [])
+```
+
+This code snippet demonstrates how the `App.tsx` component fetches provinces data from a URL and caches it in `localStorage` to avoid unnecessary network requests.
+
+### Performance and Caching
+
+To enhance performance, the component caches the fetched provinces data in `localStorage`. This caching mechanism ensures that the data is only fetched once and reused on subsequent renders, reducing network requests and improving load times.
+
+```jsx
+localStorage.setItem('provincesData', JSON.stringify(data))
+```
+
+#### Caching the ProvinceCitySelect Component
+
+The `ProvinceCitySelect` component itself does not have built-in caching mechanisms. However, the data it relies on (provinces and cities) is cached in `localStorage` within the `App.tsx` component. This means that once the data is fetched and stored in `localStorage`, the `ProvinceCitySelect` component can be rendered without additional network requests, leveraging the cached data.
+
+Here is a breakdown of how the caching works:
+
+1. **Data Fetching**: When the `App` component mounts, it checks if the provinces data is already cached in `localStorage`.
+2. **Using Cached Data**: If the data is found in `localStorage`, it is parsed and used to set the `provinces` state.
+3. **Fetching New Data**: If the data is not found in `localStorage`, the component fetches the data from the specified URL.
+4. **Caching New Data**: After fetching the data, it is stored in `localStorage` for future use.
+
+This caching strategy ensures that the `ProvinceCitySelect` component can render quickly and efficiently, as it does not need to fetch data from the network on every render.
+
 ### Basic Usage
 
 ```jsx
-import ProvinceCitySelect from 'iran-regions';
-import 'iran-regions/dist/index.css';
-
-<ProvinceCitySelect onChange={value => console.log(value)} />
+import ProvinceCitySelect from 'iran-regions'
+import 'iran-regions/dist/index.css'
+;<ProvinceCitySelect onChange={value => console.log(value)} />
 ```
 
 ### With Initial Value
@@ -213,7 +310,7 @@ import 'iran-regions/dist/index.css';
 The package includes TypeScript definitions. Types can be imported:
 
 ```typescript
-import ProvinceCitySelectProps, { Province } from 'iran-regions';
+import ProvinceCitySelectProps, { Province } from 'iran-regions'
 ```
 
 ## Browser Support
@@ -246,19 +343,6 @@ ISC License - See [LICENSE](LICENSE) for details.
 For more detailed information including:
 
 - Installation guide with all required dependencies and environment setup
-- Detailed API reference documenting all components, functions, props, and methods
-- Configuration options and customization capabilities
-- Code snippets and implementation examples
-- Common use cases and best practices
-- Troubleshooting guide and known limitations
-- TypeScript type definitions and interfaces
-- Integration examples with popular frameworks
-- Performance considerations and optimization tips
-- Interactive component demos and live code examples
-- Component variants and states
-- Props playground for testing different configurations
-- Accessibility testing scenarios
-- Responsive design testing
 - Theme customization examples
 - Integration testing examples
 - Edge case demonstrations

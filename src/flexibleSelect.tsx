@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { memo, useEffect, useRef, useState } from 'react'
 import './flexibleSelect.css'
 
 type InputType = 'select' | 'autocomplete' | 'combobox'
@@ -176,4 +176,4 @@ const FlexibleInput: React.FC<FlexibleInputProps> = ({
   )
 }
 
-export default FlexibleInput
+export default memo(FlexibleInput)
