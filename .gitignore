@@ -1,11 +1,16 @@
-# Ignore all files and directories
-*
+# Ignore all files and directories in the root
+/*
 
-# Unignore specific files and directories
+# Unignore specific files
 !README.md
 !package.json
-!dist/
-!dist/favicon.ico
-!dist/index.css
-!dist/index.es.js
-!dist/index.umd.js
+
+# Unignore dist directory
+!/dist
+
+# Don't ignore specific files in dist
+/dist/*
+!/dist/favicon.ico
+!/dist/index.css
+!/dist/index.es.js
+!/dist/index.umd.js
