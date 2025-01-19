@@ -1,0 +1,7 @@
+.province-city-select {
+  --bg-color: #ffffff;
+  --text-color: #333333;
+  --border-color: #e2e8f0;
+  --focus-color: #3b82f6;
+  --error-color: #ef4444;
+}
