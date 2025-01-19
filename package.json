@@ -1,0 +1,50 @@
+{
+  "name": "iran-regions",
+  "version": "1.1.10",
+  "description": "A React component for selecting Iranian provinces and cities.",
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --port 3006",
+    "build": "tsc && vite build --emptyOutDir --outDir dist",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
+  },
+  "keywords": [
+    "react",
+    "iran",
+    "province",
+    "city",
+    "selector"
+  ],
+  "author": "Mahdi Alavitabar",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mahdialavitabar/iran-regions"
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@chromatic-com/storybook": "^3.2.4",
+    "@storybook/addon-essentials": "^8.5.0",
+    "@storybook/addon-interactions": "^8.5.0",
+    "@storybook/addon-onboarding": "^8.5.0",
+    "@storybook/blocks": "^8.5.0",
+    "@storybook/react": "^8.5.0",
+    "@storybook/react-vite": "^8.5.0",
+    "@storybook/test": "^8.5.0",
+    "@types/node": "^22.10.7",
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
+    "@vitejs/plugin-react": "^4.2.1",
+    "storybook": "^8.5.0",
+    "vite": "^5.0.10"
+  }
+}
