@@ -1,9 +1,10 @@
 {
   "name": "iran-regions",
-  "version": "1.1.10",
-  "description": "A React component for selecting Iranian provinces and cities.",
+  "version": "2.0.0",
+  "description": "A highly customizable React component for selecting Iranian provinces and cities with multiple themes, performance optimizations, and extensive configuration options.",
   "main": "dist/index.js",
   "module": "dist/index.es.js",
+  "types": "dist/index.d.ts",
   "type": "module",
   "scripts": {
     "dev": "vite --port 3006",
@@ -16,7 +17,15 @@
     "iran",
     "province",
     "city",
-    "selector"
+    "selector",
+    "persian",
+    "farsi",
+    "react-component",
+    "typescript",
+    "theme",
+    "customizable",
+    "accessible",
+    "performance"
   ],
   "author": "Mahdi Alavitabar",
   "license": "ISC",
@@ -24,13 +33,31 @@
     "type": "git",
     "url": "https://github.com/mahdialavitabar/iran-regions"
   },
-  "files": [
-    "dist"
-  ],
-  "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+  "bugs": {
+    "url": "https://github.com/mahdialavitabar/iran-regions/issues"
   },
+  "homepage": "https://github.com/mahdialavitabar/iran-regions#readme",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.es.js",
+      "require": "./dist/index.js"
+    },
+    "./styles": "./dist/style.css"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
+  },
+  "dependencies": {},
   "devDependencies": {
     "@chromatic-com/storybook": "^3.2.4",
     "@storybook/addon-essentials": "^8.5.0",
@@ -44,7 +71,10 @@
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
     "@vitejs/plugin-react": "^4.2.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "storybook": "^8.5.0",
+    "typescript": "^5.3.3",
     "vite": "^5.0.10"
   }
 }

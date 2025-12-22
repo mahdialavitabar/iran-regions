@@ -1,118 +1,125 @@
+:root {
+  --iran-regions-color-primary: #3b82f6;
+  --iran-regions-color-primaryHover: #2563eb;
+  --iran-regions-color-background: #ffffff;
+  --iran-regions-color-surface: #f8fafc;
+  --iran-regions-color-text: #1f2937;
+  --iran-regions-color-textSecondary: #6b7280;
+  --iran-regions-color-border: #e5e7eb;
+  --iran-regions-color-borderHover: #3b82f6;
+  --iran-regions-color-borderFocus: #3b82f6;
+  --iran-regions-color-error: #ef4444;
+  --iran-regions-color-disabled: #9ca3af;
+  --iran-regions-color-shadow: rgba(0, 0, 0, 0.1);
+  --iran-regions-color-focusRing: rgba(59, 130, 246, 0.2);
+
+  --iran-regions-spacing-xs: 0.25rem;
+  --iran-regions-spacing-sm: 0.5rem;
+  --iran-regions-spacing-md: 0.75rem;
+  --iran-regions-spacing-lg: 1rem;
+  --iran-regions-spacing-xl: 1.5rem;
+
+  --iran-regions-radius-sm: 0.25rem;
+  --iran-regions-radius-md: 0.5rem;
+  --iran-regions-radius-lg: 0.75rem;
+
+  --iran-regions-font-xs: 0.75rem;
+  --iran-regions-font-sm: 0.875rem;
+  --iran-regions-font-md: 1rem;
+  --iran-regions-font-lg: 1.125rem;
+  --iran-regions-font-xl: 1.25rem;
+
+  --iran-regions-transition-fast: 150ms ease;
+  --iran-regions-transition-normal: 200ms ease;
+  --iran-regions-transition-slow: 300ms ease;
+}
+
 .province-city-select {
   direction: rtl;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  font-family: system-ui, -apple-system, sans-serif;
+  gap: var(--iran-regions-spacing-lg);
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    sans-serif;
+}
+
+.province-city-select.direction-ltr {
+  direction: ltr;
 }
 
 .province-city-select__group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--iran-regions-spacing-sm);
 }
 
-.province-city-select__label {
-  font-weight: 500;
-  color: var(--text-color, #333);
-}
-
-.province-city-select__select {
-  padding: 0.75rem 1rem;
-  border-radius: 0.5rem;
-  border: 2px solid var(--border-color, #e2e8f0);
-  font-size: 1rem;
-  transition: all 0.2s ease;
-  background-color: var(--bg-color, white);
-  color: var(--text-color, #333);
-  cursor: pointer;
-  width: 100%;
-  outline: none;
-}
-
-/* Themes */
-.province-city-select__select.theme-light {
-  --bg-color: white;
-  --text-color: #333;
-  --border-color: #e2e8f0;
-}
-
-.province-city-select__select.theme-dark {
-  --bg-color: #1a1a1a;
-  --text-color: #fff;
-  --border-color: #404040;
-}
-
-/* Sizes */
-.province-city-select__select.size-sm {
-  padding: 0.5rem 0.75rem;
-  font-size: 0.875rem;
-}
-
-.province-city-select__select.size-lg {
-  padding: 1rem 1.25rem;
-  font-size: 1.125rem;
-}
-
-/* Variants */
-.province-city-select__select.variant-filled {
-  border: none;
-  background-color: var(--bg-color-filled, #f8fafc);
-}
-
-.province-city-select__select.variant-outlined:hover {
-  border-color: var(--hover-color, #3b82f6);
-}
-
-.province-city-select__select:focus {
-  border-color: var(--focus-color, #3b82f6);
-  box-shadow: 0 0 0 3px var(--focus-ring-color, rgba(59, 130, 246, 0.1));
-}
-
-/* States */
-.province-city-select__select.disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-.province-city-select__select.error {
-  border-color: var(--error-color, #ef4444);
-}
-
-.required-mark {
-  color: var(--error-color, #ef4444);
-  margin-left: 0.25rem;
-}
-
-/* Error Message */
 .province-city-select__error {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  color: var(--error-color, #ef4444);
-  font-size: 0.9rem;
+  gap: var(--iran-regions-spacing-md);
+  color: var(--iran-regions-color-error);
+  font-size: var(--iran-regions-font-sm);
   font-weight: 500;
-  margin-top: 0.5rem;
+  padding: var(--iran-regions-spacing-sm) var(--iran-regions-spacing-md);
+  background-color: color-mix(
+    in srgb,
+    var(--iran-regions-color-error) 10%,
+    transparent
+  );
+  border-radius: var(--iran-regions-radius-sm);
+  animation: slideDown var(--iran-regions-transition-normal);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .error-icon {
-  width: 1rem;
-  height: 1rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
 }
 
-/* Loading Spinner */
+.error-retry-button {
+  margin-left: auto;
+  padding: var(--iran-regions-spacing-xs) var(--iran-regions-spacing-md);
+  background-color: var(--iran-regions-color-error);
+  color: white;
+  border: none;
+  border-radius: var(--iran-regions-radius-sm);
+  font-size: var(--iran-regions-font-sm);
+  cursor: pointer;
+  transition: opacity var(--iran-regions-transition-fast);
+}
+
+.error-retry-button:hover {
+  opacity: 0.9;
+}
+
 .province-city-select__loading {
   display: flex;
+  align-items: center;
   justify-content: center;
-  padding: 1rem 0;
+  gap: var(--iran-regions-spacing-md);
+  padding: var(--iran-regions-spacing-lg);
+  color: var(--iran-regions-color-textSecondary);
 }
 
 .loading-spinner {
   width: 1.5rem;
   height: 1.5rem;
-  border: 2px solid #e2e8f0;
-  border-top-color: #3b82f6;
+  border: 3px solid var(--iran-regions-color-surface);
+  border-top-color: var(--iran-regions-color-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -123,41 +130,76 @@
   }
 }
 
-/* RTL Support */
-[dir='rtl'] .province-city-select {
-  text-align: right;
+.loading-text {
+  font-size: var(--iran-regions-font-sm);
 }
 
-[dir='rtl'] .required-mark {
-  margin-right: 0.25rem;
-  margin-left: 0;
+.province-city-select.theme-dark {
+  --iran-regions-color-primary: #60a5fa;
+  --iran-regions-color-primaryHover: #3b82f6;
+  --iran-regions-color-background: #0f172a;
+  --iran-regions-color-surface: #1e293b;
+  --iran-regions-color-text: #f1f5f9;
+  --iran-regions-color-textSecondary: #94a3b8;
+  --iran-regions-color-border: #334155;
+  --iran-regions-color-borderHover: #60a5fa;
+  --iran-regions-color-borderFocus: #60a5fa;
+  --iran-regions-color-error: #f87171;
+  --iran-regions-color-disabled: #64748b;
+  --iran-regions-color-shadow: rgba(0, 0, 0, 0.3);
+  --iran-regions-color-focusRing: rgba(96, 165, 250, 0.3);
 }
 
-/* Dark Mode Support */
-@media (prefers-color-scheme: dark) {
-  .province-city-select__select.theme-light {
-    --border-color: #404040;
-  }
+.province-city-select.theme-modern {
+  --iran-regions-color-primary: #8b5cf6;
+  --iran-regions-color-primaryHover: #7c3aed;
+  --iran-regions-color-background: #ffffff;
+  --iran-regions-color-surface: #faf5ff;
+  --iran-regions-color-text: #1f2937;
+  --iran-regions-color-textSecondary: #6b7280;
+  --iran-regions-color-border: #e9d5ff;
+  --iran-regions-color-borderHover: #8b5cf6;
+  --iran-regions-color-borderFocus: #8b5cf6;
+  --iran-regions-color-error: #f43f5e;
+  --iran-regions-color-disabled: #9ca3af;
+  --iran-regions-color-shadow: rgba(139, 92, 246, 0.1);
+  --iran-regions-color-focusRing: rgba(139, 92, 246, 0.2);
+  --iran-regions-radius-sm: 0.375rem;
+  --iran-regions-radius-md: 0.75rem;
+  --iran-regions-radius-lg: 1rem;
 }
 
-/* Focus Visible */
-.province-city-select__select:focus-visible {
-  outline: 2px solid var(--focus-color, #3b82f6);
-  outline-offset: 2px;
+.province-city-select.theme-minimal {
+  --iran-regions-color-primary: #000000;
+  --iran-regions-color-primaryHover: #374151;
+  --iran-regions-color-background: #ffffff;
+  --iran-regions-color-surface: #f9fafb;
+  --iran-regions-color-text: #111827;
+  --iran-regions-color-textSecondary: #6b7280;
+  --iran-regions-color-border: #d1d5db;
+  --iran-regions-color-borderHover: #000000;
+  --iran-regions-color-borderFocus: #000000;
+  --iran-regions-color-error: #dc2626;
+  --iran-regions-color-disabled: #9ca3af;
+  --iran-regions-color-shadow: rgba(0, 0, 0, 0.05);
+  --iran-regions-color-focusRing: rgba(0, 0, 0, 0.1);
+  --iran-regions-radius-sm: 0.125rem;
+  --iran-regions-radius-md: 0.25rem;
+  --iran-regions-radius-lg: 0.375rem;
 }
 
-/* Custom Select Arrow */
-.province-city-select__select {
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23666'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.75rem center;
-  background-size: 1rem;
-  padding-right: 2.5rem;
-}
-
-[dir='rtl'] .province-city-select__select {
-  background-position: left 0.75rem center;
-  padding-right: 1rem;
-  padding-left: 2.5rem;
+.province-city-select.theme-ocean {
+  --iran-regions-color-primary: #0891b2;
+  --iran-regions-color-primaryHover: #0e7490;
+  --iran-regions-color-background: #ffffff;
+  --iran-regions-color-surface: #ecfeff;
+  --iran-regions-color-text: #164e63;
+  --iran-regions-color-textSecondary: #0e7490;
+  --iran-regions-color-border: #a5f3fc;
+  --iran-regions-color-borderHover: #0891b2;
+  --iran-regions-color-borderFocus: #0891b2;
+  --iran-regions-color-error: #ef4444;
+  --iran-regions-color-disabled: #9ca3af;
+  --iran-regions-color-shadow: rgba(8, 145, 178, 0.1);
+  --iran-regions-color-focusRing: rgba(8, 145, 178, 0.2);
 }

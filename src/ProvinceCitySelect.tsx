@@ -1,81 +1,195 @@
-import React, { memo, useEffect, useMemo, useState } from 'react'
-import FlexibleInput from './flexibleSelect'
-import './ProvinceCitySelect.css'
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import FlexibleInput from './flexibleSelect';
+import './ProvinceCitySelect.css';
+import type {
+  AccessibilityConfig,
+  AnimationConfig,
+  Direction,
+  DropdownConfig,
+  ErrorConfig,
+  IconConfig,
+  KeyboardNavigationConfig,
+  LoadingConfig,
+  Province,
+  ProvinceCity,
+  RTLConfig,
+  SearchConfig,
+  SelectorType,
+  Size,
+  ValidationRule,
+  Variant,
+} from './types';
+import { DataSource, defaultDataSource } from './utils/dataSource';
 
-export type Province = {
-  name: string
-  cities: string[]
-}
+export type { Province, ProvinceCity };
 
-type SelectorType = 'select' | 'autocomplete' | 'combobox'
+export interface ProvinceCitySelectProps {
+  value?: ProvinceCity;
+  defaultValue?: ProvinceCity;
+  selectorType?: SelectorType;
+  onChange?: (value: ProvinceCity) => void;
+  onProvinceChange?: (province: string) => void;
+  onCityChange?: (city: string) => void;
+  onBlur?: (event: React.FocusEvent) => void;
+  onFocus?: (event: React.FocusEvent) => void;
 
-export type ProvinceCitySelectProps = {
-  value?: {
-    province: string
-    city: string
-  }
-  selectorType?: SelectorType
-  onChange?: (value: { province: string; city: string }) => void
-  theme?: 'light' | 'dark'
-  size?: 'sm' | 'md' | 'lg'
-  variant?: 'outlined' | 'filled'
-  isRequired?: boolean
-  isDisabled?: boolean
+  theme?: 'light' | 'dark' | 'modern' | 'minimal' | 'ocean';
+  customTheme?: Record<string, string>;
+  size?: Size;
+  variant?: Variant;
+  direction?: Direction;
+
+  isRequired?: boolean;
+  isDisabled?: boolean;
+  readonly?: boolean;
+  clearable?: boolean;
+
   placeholders?: {
-    province?: string
-    city?: string
-  }
+    province?: string;
+    city?: string;
+  };
   labels?: {
-    province?: string
-    city?: string
-  }
-  className?: string
-  onProvinceChange?: (province: string) => void
-  onCityChange?: (city: string) => void
-  style?: React.CSSProperties
-  groupStyle?: React.CSSProperties
-  provinceInputStyle?: React.CSSProperties
-  cityInputStyle?: React.CSSProperties
-  errorStyle?: React.CSSProperties
-  loadingStyle?: React.CSSProperties
+    province?: string;
+    city?: string;
+  };
+
+  validation?: ValidationRule;
+  showErrorMessages?: boolean;
+  errorMessages?: {
+    provinceRequired?: string;
+    cityRequired?: string;
+    custom?: string;
+  };
+
+  loading?: LoadingConfig;
+  error?: ErrorConfig;
+  accessibility?: AccessibilityConfig;
+  animation?: AnimationConfig;
+  dropdown?: DropdownConfig;
+  search?: SearchConfig;
+  rtl?: RTLConfig;
+  keyboard?: KeyboardNavigationConfig;
+  icons?: IconConfig;
+
+  className?: string;
+  style?: React.CSSProperties;
+  containerClassName?: string;
+  containerStyle?: React.CSSProperties;
+  groupClassName?: string;
+  groupStyle?: React.CSSProperties;
+  provinceClassName?: string;
+  provinceInputStyle?: React.CSSProperties;
+  cityClassName?: string;
+  cityInputStyle?: React.CSSProperties;
+  errorClassName?: string;
+  errorStyle?: React.CSSProperties;
+  loadingClassName?: string;
+  loadingStyle?: React.CSSProperties;
+
+  dataSource?: DataSource;
+  provinces?: Province[];
+  filterProvinces?: (provinces: Province[]) => Province[];
+  filterCities?: (cities: string[], province: string) => string[];
+  sortProvinces?: boolean | ((a: Province, b: Province) => number);
+  sortCities?: boolean | ((a: string, b: string) => number);
+
+  renderProvince?: (province: Province) => React.ReactNode;
+  renderCity?: (city: string, province: string) => React.ReactNode;
+  renderError?: (error: string) => React.ReactNode;
+  renderLoading?: () => React.ReactNode;
+
+  id?: string;
+  name?: string;
+  'data-testid'?: string;
+  tabIndex?: number;
 }
 
-// Memoized error message component
 const ErrorMessage = memo(
-  ({ message, style }: { message: string; style?: React.CSSProperties }) => (
-    <div className="province-city-select__error" style={style}>
-      <svg
-        className="error-icon"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-      >
-        <circle cx="12" cy="12" r="10" />
-        <line x1="12" y1="8" x2="12" y2="12" />
-        <line x1="12" y1="16" x2="12" y2="16" />
-      </svg>
+  ({
+    message,
+    className = '',
+    style,
+    showRetry = false,
+    onRetry,
+    icon,
+  }: {
+    message: string;
+    className?: string;
+    style?: React.CSSProperties;
+    showRetry?: boolean;
+    onRetry?: () => void;
+    icon?: React.ReactNode;
+  }) => (
+    <div className={`province-city-select__error ${className}`} style={style}>
+      {icon || (
+        <svg
+          className="error-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12" y2="16" />
+        </svg>
+      )}
       <span>{message}</span>
+      {showRetry && onRetry && (
+        <button type="button" className="error-retry-button" onClick={onRetry}>
+          تلاش مجدد
+        </button>
+      )}
     </div>
-  )
-)
+  ),
+);
 
-// Memoized loading component
-const LoadingSpinner = memo(({ style }: { style?: React.CSSProperties }) => (
-  <div className="province-city-select__loading" style={style}>
-    <div className="loading-spinner"></div>
-  </div>
-))
+ErrorMessage.displayName = 'ErrorMessage';
+
+const LoadingSpinner = memo(
+  ({
+    config,
+    className = '',
+    style,
+    icon,
+  }: {
+    config?: LoadingConfig;
+    className?: string;
+    style?: React.CSSProperties;
+    icon?: React.ReactNode;
+  }) => (
+    <div className={`province-city-select__loading ${className}`} style={style}>
+      {config?.component || icon || (
+        <div
+          className="loading-spinner"
+          style={
+            config?.spinnerColor
+              ? { borderTopColor: config.spinnerColor }
+              : undefined
+          }
+        ></div>
+      )}
+      {config?.text && <span className="loading-text">{config.text}</span>}
+    </div>
+  ),
+);
+
+LoadingSpinner.displayName = 'LoadingSpinner';
 
 const ProvinceCitySelect: React.FC<ProvinceCitySelectProps> = memo(
   ({
-    value = { province: '', city: '' },
+    value,
+    defaultValue = { province: '', city: '' },
     onChange,
     theme = 'light',
+    customTheme,
     size = 'md',
     variant = 'outlined',
+    direction,
     isRequired = false,
     isDisabled = false,
+    readonly = false,
+    clearable = false,
     placeholders = {
       province: 'انتخاب استان',
       city: 'انتخاب شهر',
@@ -84,166 +198,333 @@ const ProvinceCitySelect: React.FC<ProvinceCitySelectProps> = memo(
       province: 'استان',
       city: 'شهر',
     },
+    validation,
+    showErrorMessages = true,
+    errorMessages = {
+      provinceRequired: 'لطفا استان را انتخاب کنید',
+      cityRequired: 'لطفا شهر را انتخاب کنید',
+    },
     className = '',
     onProvinceChange,
     onCityChange,
+    onBlur,
+    onFocus,
     selectorType = 'select',
     style,
+    containerClassName = '',
+    containerStyle,
+    groupClassName = '',
     groupStyle,
+    provinceClassName = '',
     provinceInputStyle,
+    cityClassName = '',
     cityInputStyle,
+    errorClassName = '',
     errorStyle,
+    loadingClassName = '',
     loadingStyle,
+    loading,
+    error: errorConfig,
+    accessibility,
+    animation,
+    dropdown,
+    search,
+    rtl,
+    keyboard,
+    icons,
+    dataSource,
+    provinces: customProvinces,
+    filterProvinces,
+    filterCities,
+    sortProvinces = false,
+    sortCities = false,
+    renderProvince,
+    renderCity,
+    renderError,
+    renderLoading,
+    id,
+    name,
+    'data-testid': dataTestId,
+    tabIndex,
   }) => {
-    const [selectedProvince, setSelectedProvince] = useState(value.province)
-    const [selectedCity, setSelectedCity] = useState(value.city)
-    const [errorMessageState, setErrorMessageState] = useState('')
-    const [provinces, setProvinces] = useState<Province[]>([])
-    const [isLoading, setIsLoading] = useState(true)
-    const [error, setError] = useState<string | null>(null)
+    const [internalValue, setInternalValue] = useState<ProvinceCity>(
+      value || defaultValue,
+    );
+    const [errorMessageState, setErrorMessageState] = useState('');
+    const [provinces, setProvinces] = useState<Province[]>([]);
+    const [isLoading, setIsLoading] = useState(!customProvinces);
+    const [error, setError] = useState<string | null>(null);
 
-    // Memoize options to prevent unnecessary recalculations
-    const provinceOptions = useMemo(
-      () =>
-        provinces.map(p => ({
-          value: p.name,
-          label: p.name,
-        })),
-      [provinces]
-    )
+    const isControlled = value !== undefined;
+    const currentValue = isControlled ? value : internalValue;
 
-    const cityOptions = useMemo(
-      () =>
-        provinces
-          .find(p => p.name === selectedProvince)
-          ?.cities.map(city => ({
-            value: city,
-            label: city,
-          })) || [],
-      [provinces, selectedProvince]
-    )
+    const handleValueChange = useCallback(
+      (newValue: ProvinceCity) => {
+        if (!isControlled) {
+          setInternalValue(newValue);
+        }
+        onChange?.(newValue);
+      },
+      [isControlled, onChange],
+    );
+
+    const rtlEnabled =
+      rtl?.enabled ??
+      (rtl?.autoDetect ? /[\u0600-\u06FF]/.test(labels.province || '') : true);
+    const actualDirection = direction || (rtlEnabled ? 'rtl' : 'ltr');
+
+    const provinceOptions = useMemo(() => {
+      let filtered = customProvinces || provinces;
+
+      if (filterProvinces) {
+        filtered = filterProvinces(filtered);
+      }
+
+      if (sortProvinces) {
+        filtered = [...filtered].sort(
+          typeof sortProvinces === 'function'
+            ? sortProvinces
+            : (a, b) => a.name.localeCompare(b.name),
+        );
+      }
+
+      return filtered.map((p) => ({
+        value: p.name,
+        label: p.name,
+      }));
+    }, [provinces, customProvinces, filterProvinces, sortProvinces]);
+
+    const cityOptions = useMemo(() => {
+      const province = (customProvinces || provinces).find(
+        (p) => p.name === currentValue.province,
+      );
+
+      let cities = province?.cities || [];
+
+      if (filterCities && currentValue.province) {
+        cities = filterCities(cities, currentValue.province);
+      }
+
+      if (sortCities) {
+        cities = [...cities].sort(
+          typeof sortCities === 'function'
+            ? sortCities
+            : (a, b) => a.localeCompare(b),
+        );
+      }
+
+      return cities.map((city) => ({
+        value: city,
+        label: city,
+      }));
+    }, [
+      provinces,
+      customProvinces,
+      currentValue.province,
+      filterCities,
+      sortCities,
+    ]);
 
     useEffect(() => {
+      if (customProvinces) {
+        setProvinces(customProvinces);
+        setIsLoading(false);
+        return;
+      }
+
+      const source = dataSource || defaultDataSource;
       const fetchProvinces = async () => {
-        const cachedData = localStorage.getItem('provincesData')
-        if (cachedData) {
-          try {
-            const data = JSON.parse(cachedData)
-            if (Array.isArray(data)) {
-              setProvinces(data)
-              setIsLoading(false)
-              return
-            }
-          } catch (error) {
-            console.error('Error parsing cached data:', error)
-          }
-        }
-
+        setIsLoading(true);
         try {
-          const response = await fetch(
-            'https://gist.githubusercontent.com/mahdialavitabar/115d131d6fe1f56e1f177aa4c741739d/raw/a070a0fe4f82a8a378c67d42abda3046134ed97c/data.json'
-          )
-          if (!response.ok) {
-            throw new Error('Network response was not ok')
-          }
-          const data = await response.json()
-
-          if (Array.isArray(data)) {
-            setProvinces(data)
-            localStorage.setItem('provincesData', JSON.stringify(data))
-            setIsLoading(false)
-          } else {
-            throw new Error('Fetched data is not an array')
-          }
-        } catch (error) {
-          console.error('Error fetching provinces data:', error)
-          setError(error.message)
-          setIsLoading(false)
+          const data = await source.fetchProvinces();
+          setProvinces(data);
+          setError(null);
+        } catch (err) {
+          const errorMessage =
+            err instanceof Error ? err.message : 'Failed to load provinces';
+          setError(errorMessage);
+        } finally {
+          setIsLoading(false);
         }
-      }
+      };
 
-      fetchProvinces()
-    }, [])
+      fetchProvinces();
+    }, [customProvinces, dataSource]);
 
     useEffect(() => {
-      setSelectedProvince(value.province)
-      setSelectedCity(value.city)
-      if (value.province && value.city) {
-        setErrorMessageState('')
-      } else if (!value.province) {
-        setErrorMessageState('لطفا استان را انتخاب کنید')
-      } else if (!value.city) {
-        setErrorMessageState('لطفا شهر را انتخاب کنید')
-      }
-    }, [value])
+      if (!showErrorMessages) return;
 
-    // Memoize handlers to prevent unnecessary rerenders
-    const handleProvinceChange = React.useCallback(
-      (province: string) => {
-        setSelectedProvince(province)
-        setSelectedCity('')
-        onChange?.({ province, city: '' })
-        onProvinceChange?.(province)
-      },
-      [onChange, onProvinceChange]
-    )
-
-    const handleCityChange = React.useCallback(
-      (city: string) => {
-        setSelectedCity(city)
-        onChange?.({ province: selectedProvince, city })
-        onCityChange?.(city)
-        if (selectedProvince && city) {
-          setErrorMessageState('')
+      if (validation?.custom) {
+        const customError = validation.custom(currentValue);
+        if (customError) {
+          setErrorMessageState(customError);
+          return;
         }
+      }
+
+      const requiredValidation = validation?.required ?? isRequired;
+
+      if (requiredValidation) {
+        const message =
+          typeof requiredValidation === 'object'
+            ? requiredValidation.message
+            : '';
+
+        if (!currentValue.province) {
+          setErrorMessageState(message || errorMessages.provinceRequired || '');
+        } else if (!currentValue.city) {
+          setErrorMessageState(message || errorMessages.cityRequired || '');
+        } else {
+          setErrorMessageState('');
+        }
+      } else {
+        setErrorMessageState('');
+      }
+    }, [
+      currentValue,
+      validation,
+      isRequired,
+      showErrorMessages,
+      errorMessages.provinceRequired,
+      errorMessages.cityRequired,
+    ]);
+
+    const handleProvinceChange = useCallback(
+      (province: string) => {
+        const newValue = { province, city: '' };
+        handleValueChange(newValue);
+        onProvinceChange?.(province);
       },
-      [onChange, onCityChange, selectedProvince]
-    )
+      [handleValueChange, onProvinceChange],
+    );
+
+    const handleCityChange = useCallback(
+      (city: string) => {
+        const newValue = { province: currentValue.province, city };
+        handleValueChange(newValue);
+        onCityChange?.(city);
+      },
+      [handleValueChange, onCityChange, currentValue.province],
+    );
+
+    const containerClasses = [
+      'province-city-select',
+      `theme-${theme}`,
+      `direction-${actualDirection}`,
+      containerClassName,
+      className,
+    ]
+      .filter(Boolean)
+      .join(' ');
+
+    const commonInputProps = {
+      theme,
+      size,
+      variant,
+      disabled: isDisabled || isLoading,
+      required: isRequired,
+      error: !!errorMessageState || !!error,
+      inputType: selectorType,
+      accessibility,
+      animation,
+      dropdown,
+      search,
+      keyboard,
+      icons,
+      tabIndex,
+    };
 
     return (
-      <div className={`province-city-select ${className}`} style={style}>
-        <div className="province-city-select__group" style={groupStyle}>
+      <div
+        className={containerClasses}
+        style={{ ...containerStyle, ...style }}
+        id={id}
+        data-testid={dataTestId}
+        dir={actualDirection}
+      >
+        <div
+          className={`province-city-select__group ${groupClassName}`}
+          style={groupStyle}
+        >
           <FlexibleInput
-            value={selectedProvince}
+            {...commonInputProps}
+            value={currentValue.province}
             onChange={handleProvinceChange}
             options={provinceOptions}
-            inputType={selectorType}
             placeholder={placeholders.province}
-            disabled={isDisabled || isLoading}
-            required={isRequired}
-            theme={theme}
-            size={size}
-            variant={variant}
             label={labels.province}
-            error={!!errorMessageState}
+            className={provinceClassName}
             style={provinceInputStyle}
+            onBlur={onBlur}
+            onFocus={onFocus}
+            name={name ? `${name}-province` : undefined}
+            clearable={clearable}
+            readonly={readonly}
           />
         </div>
-        <div className="province-city-select__group" style={groupStyle}>
+
+        <div
+          className={`province-city-select__group ${groupClassName}`}
+          style={groupStyle}
+        >
           <FlexibleInput
-            value={selectedCity}
+            {...commonInputProps}
+            value={currentValue.city}
             onChange={handleCityChange}
             options={cityOptions}
-            inputType={selectorType}
             placeholder={placeholders.city}
-            disabled={!selectedProvince || isDisabled || isLoading}
-            required={isRequired}
-            theme={theme}
-            size={size}
-            variant={variant}
+            disabled={!currentValue.province || isDisabled || isLoading}
             label={labels.city}
-            error={!!errorMessageState}
+            className={cityClassName}
             style={cityInputStyle}
+            onBlur={onBlur}
+            onFocus={onFocus}
+            name={name ? `${name}-city` : undefined}
+            clearable={clearable}
+            readonly={readonly}
           />
         </div>
-        {errorMessageState && (
-          <ErrorMessage message={errorMessageState} style={errorStyle} />
-        )}
-        {isLoading && <LoadingSpinner style={loadingStyle} />}
-        {error && <ErrorMessage message={error} style={errorStyle} />}
-      </div>
-    )
-  }
-)
 
-export default ProvinceCitySelect
+        {showErrorMessages &&
+          errorMessageState &&
+          (renderError ? (
+            renderError(errorMessageState)
+          ) : (
+            <ErrorMessage
+              message={errorMessageState}
+              className={errorClassName}
+              style={errorStyle}
+              icon={icons?.error}
+            />
+          ))}
+
+        {isLoading &&
+          (renderLoading ? (
+            renderLoading()
+          ) : (
+            <LoadingSpinner
+              config={loading}
+              className={loadingClassName}
+              style={loadingStyle}
+              icon={icons?.loading}
+            />
+          ))}
+
+        {error && errorConfig && (
+          <ErrorMessage
+            message={error}
+            className={errorClassName}
+            style={errorStyle}
+            showRetry={errorConfig.retryButton}
+            onRetry={errorConfig.onRetry}
+            icon={icons?.error}
+          />
+        )}
+      </div>
+    );
+  },
+);
+
+ProvinceCitySelect.displayName = 'ProvinceCitySelect';
+
+export default ProvinceCitySelect;
