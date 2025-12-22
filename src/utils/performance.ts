@@ -16,13 +16,18 @@ export function calculateVisibleRange(
   return { start, end };
 }
 
+export interface DebouncedFunction<T extends (...args: any[]) => any> {
+  (...args: Parameters<T>): void;
+  cancel: () => void;
+}
+
 export function debounce<T extends (...args: any[]) => any>(
   func: T,
   wait: number,
-): (...args: Parameters<T>) => void {
+): DebouncedFunction<T> {
   let timeout: ReturnType<typeof setTimeout> | null = null;
 
-  return function executedFunction(...args: Parameters<T>) {
+  const executedFunction = function (...args: Parameters<T>) {
     const later = () => {
       timeout = null;
       func(...args);
@@ -32,24 +37,49 @@ export function debounce<T extends (...args: any[]) => any>(
       clearTimeout(timeout);
     }
     timeout = setTimeout(later, wait);
+  } as DebouncedFunction<T>;
+
+  executedFunction.cancel = () => {
+    if (timeout !== null) {
+      clearTimeout(timeout);
+      timeout = null;
+    }
   };
+
+  return executedFunction;
+}
+
+export interface ThrottledFunction<T extends (...args: any[]) => any> {
+  (...args: Parameters<T>): void;
+  cancel: () => void;
 }
 
 export function throttle<T extends (...args: any[]) => any>(
   func: T,
   limit: number,
-): (...args: Parameters<T>) => void {
+): ThrottledFunction<T> {
   let inThrottle: boolean = false;
+  let timeout: ReturnType<typeof setTimeout> | null = null;
 
-  return function executedFunction(...args: Parameters<T>) {
+  const executedFunction = function (...args: Parameters<T>) {
     if (!inThrottle) {
       func(...args);
       inThrottle = true;
-      setTimeout(() => {
+      timeout = setTimeout(() => {
         inThrottle = false;
       }, limit);
     }
+  } as ThrottledFunction<T>;
+
+  executedFunction.cancel = () => {
+    if (timeout !== null) {
+      clearTimeout(timeout);
+      timeout = null;
+    }
+    inThrottle = false;
   };
+
+  return executedFunction;
 }
 
 export function memoize<T extends (...args: any[]) => any>(fn: T): T {

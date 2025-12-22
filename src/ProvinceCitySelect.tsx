@@ -254,6 +254,7 @@ const ProvinceCitySelect: React.FC<ProvinceCitySelectProps> = memo(
     const [provinces, setProvinces] = useState<Province[]>([]);
     const [isLoading, setIsLoading] = useState(!customProvinces);
     const [error, setError] = useState<string | null>(null);
+    const [isTouched, setIsTouched] = useState(false); // Track if user has interacted
 
     const isControlled = value !== undefined;
     const currentValue = isControlled ? value : internalValue;
@@ -352,7 +353,10 @@ const ProvinceCitySelect: React.FC<ProvinceCitySelectProps> = memo(
     }, [customProvinces, dataSource]);
 
     useEffect(() => {
-      if (!showErrorMessages) return;
+      if (!showErrorMessages || !isTouched) {
+        setErrorMessageState('');
+        return;
+      }
 
       if (validation?.custom) {
         const customError = validation.custom(currentValue);
@@ -387,6 +391,7 @@ const ProvinceCitySelect: React.FC<ProvinceCitySelectProps> = memo(
       showErrorMessages,
       errorMessages.provinceRequired,
       errorMessages.cityRequired,
+      isTouched,
     ]);
 
     const handleProvinceChange = useCallback(
@@ -405,6 +410,14 @@ const ProvinceCitySelect: React.FC<ProvinceCitySelectProps> = memo(
         onCityChange?.(city);
       },
       [handleValueChange, onCityChange, currentValue.province],
+    );
+
+    const handleBlur = useCallback(
+      (event: React.FocusEvent) => {
+        setIsTouched(true);
+        onBlur?.(event);
+      },
+      [onBlur],
     );
 
     const containerClasses = [
@@ -455,7 +468,7 @@ const ProvinceCitySelect: React.FC<ProvinceCitySelectProps> = memo(
             label={labels.province}
             className={provinceClassName}
             style={provinceInputStyle}
-            onBlur={onBlur}
+            onBlur={handleBlur}
             onFocus={onFocus}
             name={name ? `${name}-province` : undefined}
             clearable={clearable}
@@ -477,7 +490,7 @@ const ProvinceCitySelect: React.FC<ProvinceCitySelectProps> = memo(
             label={labels.city}
             className={cityClassName}
             style={cityInputStyle}
-            onBlur={onBlur}
+            onBlur={handleBlur}
             onFocus={onFocus}
             name={name ? `${name}-city` : undefined}
             clearable={clearable}

@@ -1,18 +1,18 @@
-import { Meta, StoryFn } from '@storybook/react'
+import { Meta, StoryFn } from '@storybook/react';
 import ProvinceCitySelect, {
   ProvinceCitySelectProps,
-} from '../ProvinceCitySelect'
+} from '../ProvinceCitySelect';
 
 export default {
   title: 'Components/ProvinceCitySelect',
   component: ProvinceCitySelect,
-} as Meta<typeof ProvinceCitySelect>
+} as Meta<typeof ProvinceCitySelect>;
 
-const Template: StoryFn<ProvinceCitySelectProps> = args => (
+const Template: StoryFn<ProvinceCitySelectProps> = (args) => (
   <ProvinceCitySelect {...args} />
-)
+);
 
-export const Default = Template.bind({})
+export const Default = Template.bind({});
 Default.args = {
   theme: 'light',
   size: 'md',
@@ -29,7 +29,6 @@ Default.args = {
   ],
   isRequired: false,
   isDisabled: false,
-  isLoading: false,
   placeholders: {
     province: 'انتخاب استان',
     city: 'انتخاب شهر',
@@ -39,9 +38,9 @@ Default.args = {
     city: 'شهر',
   },
   selectorType: 'select',
-}
+};
 
-export const DarkTheme = Template.bind({})
+export const DarkTheme = Template.bind({});
 DarkTheme.args = {
   theme: 'dark',
   size: 'md',
@@ -58,7 +57,6 @@ DarkTheme.args = {
   ],
   isRequired: false,
   isDisabled: false,
-  isLoading: false,
   placeholders: {
     province: 'انتخاب استان',
     city: 'انتخاب شهر',
@@ -68,9 +66,9 @@ DarkTheme.args = {
     city: 'شهر',
   },
   selectorType: 'select',
-}
+};
 
-export const Autocomplete = Template.bind({})
+export const Autocomplete = Template.bind({});
 Autocomplete.args = {
   selectorType: 'autocomplete',
   theme: 'light',
@@ -88,7 +86,6 @@ Autocomplete.args = {
   ],
   isRequired: false,
   isDisabled: false,
-  isLoading: false,
   placeholders: {
     province: 'انتخاب استان',
     city: 'انتخاب شهر',
@@ -97,9 +94,9 @@ Autocomplete.args = {
     province: 'استان',
     city: 'شهر',
   },
-}
+};
 
-export const Combobox = Template.bind({})
+export const Combobox = Template.bind({});
 Combobox.args = {
   selectorType: 'combobox',
   theme: 'light',
@@ -117,7 +114,6 @@ Combobox.args = {
   ],
   isRequired: false,
   isDisabled: false,
-  isLoading: false,
   placeholders: {
     province: 'انتخاب استان',
     city: 'انتخاب شهر',
@@ -126,4 +122,4 @@ Combobox.args = {
     province: 'استان',
     city: 'شهر',
   },
-}
+};

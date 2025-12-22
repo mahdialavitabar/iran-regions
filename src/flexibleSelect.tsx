@@ -82,12 +82,15 @@ const FlexibleInput: React.FC<FlexibleInputProps> = ({
 }): React.ReactNode => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState(value);
+  const [displayValue, setDisplayValue] = useState(value); // Immediate display value for responsive typing
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const [scrollTop, setScrollTop] = useState(0);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement | HTMLSelectElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const debouncedSearchRef = useRef<ReturnType<typeof debounce> | null>(null);
+  const throttledScrollRef = useRef<ReturnType<typeof throttle> | null>(null);
 
   const searchEnabled = search?.enabled ?? inputType !== 'select';
   const searchMinChars = search?.minCharacters ?? 0;
@@ -95,16 +98,32 @@ const FlexibleInput: React.FC<FlexibleInputProps> = ({
   const virtualScrollEnabled = dropdown?.virtualScroll ?? options.length > 100;
   const itemHeight = dropdown?.itemHeight ?? 36;
 
-  const debouncedSearch = useMemo(
-    () =>
-      debounce(
-        (val: string) => {
-          setSearchValue(val);
-        },
-        search?.debounceMs ?? 150,
-      ),
-    [search?.debounceMs],
-  );
+  // Create debounced search with proper cleanup
+  useEffect(() => {
+    debouncedSearchRef.current = debounce(
+      (val: string) => {
+        setSearchValue(val);
+      },
+      search?.debounceMs ?? 150,
+    );
+
+    return () => {
+      debouncedSearchRef.current?.cancel();
+    };
+  }, [search?.debounceMs]);
+
+  // Create throttled scroll handler with proper cleanup
+  useEffect(() => {
+    throttledScrollRef.current = throttle((scrollTopValue: number) => {
+      if (virtualScrollEnabled) {
+        setScrollTop(scrollTopValue);
+      }
+    }, 16);
+
+    return () => {
+      throttledScrollRef.current?.cancel();
+    };
+  }, [virtualScrollEnabled]);
 
   const filteredOptions = useMemo(() => {
     if (!searchEnabled || inputType === 'select') return options;
@@ -129,14 +148,17 @@ const FlexibleInput: React.FC<FlexibleInputProps> = ({
     searchMinChars,
   ]);
 
-  const visibleOptions = useMemo(() => {
-    if (!virtualScrollEnabled || !dropdownRef.current) return filteredOptions;
-
-    const containerHeight = dropdown?.maxHeight
-      ? typeof dropdown.maxHeight === 'number'
+  const containerHeight = useMemo(() => {
+    if (dropdown?.maxHeight) {
+      return typeof dropdown.maxHeight === 'number'
         ? dropdown.maxHeight
-        : parseInt(dropdown.maxHeight)
-      : 300;
+        : parseInt(dropdown.maxHeight);
+    }
+    return 300;
+  }, [dropdown?.maxHeight]);
+
+  const visibleOptions = useMemo(() => {
+    if (!virtualScrollEnabled) return filteredOptions;
 
     const range = calculateVisibleRange(scrollTop, {
       itemHeight,
@@ -153,12 +175,14 @@ const FlexibleInput: React.FC<FlexibleInputProps> = ({
     virtualScrollEnabled,
     scrollTop,
     itemHeight,
-    dropdown?.maxHeight,
+    containerHeight,
   ]);
 
   useEffect(() => {
     const selectedOption = options.find((opt) => opt.value === value);
-    setSearchValue(selectedOption?.label || value || '');
+    const newDisplayValue = selectedOption?.label || value || '';
+    setSearchValue(newDisplayValue);
+    setDisplayValue(newDisplayValue);
   }, [value, options]);
 
   useEffect(() => {
@@ -215,15 +239,16 @@ const FlexibleInput: React.FC<FlexibleInputProps> = ({
   const handleInputChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const newValue = event.target.value;
-      if (search?.debounceMs) {
-        debouncedSearch(newValue);
+      setDisplayValue(newValue); // Update display immediately for responsive typing
+      if (search?.debounceMs && debouncedSearchRef.current) {
+        debouncedSearchRef.current(newValue);
       } else {
         setSearchValue(newValue);
       }
       setIsOpen(true);
       setHighlightedIndex(-1);
     },
-    [search?.debounceMs, debouncedSearch],
+    [search?.debounceMs],
   );
 
   const handleOptionClick = useCallback(
@@ -248,6 +273,7 @@ const FlexibleInput: React.FC<FlexibleInputProps> = ({
 
       onChange('');
       setSearchValue('');
+      setDisplayValue('');
       setIsOpen(false);
       setHighlightedIndex(-1);
       inputRef.current?.focus();
@@ -305,12 +331,10 @@ const FlexibleInput: React.FC<FlexibleInputProps> = ({
   );
 
   const handleDropdownScroll = useCallback(
-    throttle((e: React.UIEvent<HTMLDivElement>) => {
-      if (virtualScrollEnabled) {
-        setScrollTop(e.currentTarget.scrollTop);
-      }
-    }, 16),
-    [virtualScrollEnabled],
+    (e: React.UIEvent<HTMLDivElement>) => {
+      throttledScrollRef.current?.(e.currentTarget.scrollTop);
+    },
+    [],
   );
 
   const renderInput = () => {
@@ -342,7 +366,7 @@ const FlexibleInput: React.FC<FlexibleInputProps> = ({
 
     if (inputType === 'select' && !searchEnabled) {
       return (
-        <input {...commonProps} type="text" value={searchValue} readOnly />
+        <input {...commonProps} type="text" value={displayValue} readOnly />
       );
     }
 
@@ -350,7 +374,7 @@ const FlexibleInput: React.FC<FlexibleInputProps> = ({
       <input
         {...commonProps}
         type="text"
-        value={searchValue}
+        value={displayValue}
         onChange={handleInputChange}
       />
     );
@@ -367,7 +391,7 @@ const FlexibleInput: React.FC<FlexibleInputProps> = ({
   const dropdownStyle: React.CSSProperties = {
     maxHeight: dropdown?.maxHeight || '300px',
     width: dropdown?.width || '100%',
-    ...(animation?.disabled === false && {
+    ...(animation?.disabled !== true && {
       transition: `opacity ${animation?.duration || 200}ms ${
         animation?.easing || 'ease'
       }`,

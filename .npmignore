@@ -7,3 +7,4 @@ tsconfig.node.json
 vite.config.mts
 .storybook
 .gitignore
+.storybook
