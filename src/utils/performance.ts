@@ -16,12 +16,14 @@ export function calculateVisibleRange(
   return { start, end };
 }
 
-export interface DebouncedFunction<T extends (...args: any[]) => any> {
+type AnyFunction = (...args: any[]) => any;
+
+export interface DebouncedFunction<T extends AnyFunction> {
   (...args: Parameters<T>): void;
   cancel: () => void;
 }
 
-export function debounce<T extends (...args: any[]) => any>(
+export function debounce<T extends AnyFunction>(
   func: T,
   wait: number,
 ): DebouncedFunction<T> {
@@ -49,12 +51,12 @@ export function debounce<T extends (...args: any[]) => any>(
   return executedFunction;
 }
 
-export interface ThrottledFunction<T extends (...args: any[]) => any> {
+export interface ThrottledFunction<T extends AnyFunction> {
   (...args: Parameters<T>): void;
   cancel: () => void;
 }
 
-export function throttle<T extends (...args: any[]) => any>(
+export function throttle<T extends AnyFunction>(
   func: T,
   limit: number,
 ): ThrottledFunction<T> {
@@ -82,15 +84,15 @@ export function throttle<T extends (...args: any[]) => any>(
   return executedFunction;
 }
 
-export function memoize<T extends (...args: any[]) => any>(fn: T): T {
+export function memoize<T extends AnyFunction>(fn: T): T {
   const cache = new Map<string, ReturnType<T>>();
 
   return ((...args: Parameters<T>) => {
     const key = JSON.stringify(args);
     if (cache.has(key)) {
-      return cache.get(key);
+      return cache.get(key)!;
     }
-    const result = fn(...args);
+    const result = fn(...args) as ReturnType<T>;
     cache.set(key, result);
     return result;
   }) as T;

@@ -25,6 +25,7 @@ interface FlexibleInputProps {
   value: string;
   onChange: (value: string) => void;
   options: SelectOption[];
+  renderOption?: (option: SelectOption) => React.ReactNode;
   inputType?: SelectorType;
   placeholder?: string;
   disabled?: boolean;
@@ -55,6 +56,7 @@ const FlexibleInput: React.FC<FlexibleInputProps> = ({
   value,
   onChange,
   options,
+  renderOption,
   inputType = 'select',
   placeholder = '',
   disabled = false,
@@ -81,10 +83,12 @@ const FlexibleInput: React.FC<FlexibleInputProps> = ({
   icons,
 }): React.ReactNode => {
   const [isOpen, setIsOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState(value);
-  const [displayValue, setDisplayValue] = useState(value); // Immediate display value for responsive typing
+  const [isClosing, setIsClosing] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [displayValue, setDisplayValue] = useState(value);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const [scrollTop, setScrollTop] = useState(0);
+  const [isSearching, setIsSearching] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement | HTMLSelectElement>(null);
@@ -97,12 +101,12 @@ const FlexibleInput: React.FC<FlexibleInputProps> = ({
   const dropdownPlacement = dropdown?.placement ?? 'bottom';
   const virtualScrollEnabled = dropdown?.virtualScroll ?? options.length > 100;
   const itemHeight = dropdown?.itemHeight ?? 36;
+  const [resolvedPlacement, setResolvedPlacement] = useState(dropdownPlacement);
 
-  // Create debounced search with proper cleanup
   useEffect(() => {
     debouncedSearchRef.current = debounce(
       (val: string) => {
-        setSearchValue(val);
+        setSearchQuery(val);
       },
       search?.debounceMs ?? 150,
     );
@@ -112,7 +116,6 @@ const FlexibleInput: React.FC<FlexibleInputProps> = ({
     };
   }, [search?.debounceMs]);
 
-  // Create throttled scroll handler with proper cleanup
   useEffect(() => {
     throttledScrollRef.current = throttle((scrollTopValue: number) => {
       if (virtualScrollEnabled) {
@@ -126,24 +129,24 @@ const FlexibleInput: React.FC<FlexibleInputProps> = ({
   }, [virtualScrollEnabled]);
 
   const filteredOptions = useMemo(() => {
-    if (!searchEnabled || inputType === 'select') return options;
+    if (!searchEnabled || !isSearching) return options;
 
-    const query = searchValue.toLowerCase().trim();
+    const query = searchQuery.toLowerCase().trim();
 
     if (query.length < searchMinChars) return options;
 
     return options.filter((option) => {
       const label = option.label.toLowerCase();
       if (search?.caseSensitive) {
-        return option.label.includes(searchValue);
+        return option.label.includes(searchQuery);
       }
       return label.includes(query);
     });
   }, [
     options,
-    searchValue,
+    searchQuery,
     searchEnabled,
-    inputType,
+    isSearching,
     search?.caseSensitive,
     searchMinChars,
   ]);
@@ -156,6 +159,28 @@ const FlexibleInput: React.FC<FlexibleInputProps> = ({
     }
     return 300;
   }, [dropdown?.maxHeight]);
+
+  const closeDropdown = useCallback(() => {
+    if (!isOpen || isClosing) return;
+    setIsClosing(true);
+    setHighlightedIndex(-1);
+    setIsSearching(false);
+    setSearchQuery('');
+    const selectedOption = options.find((opt) => opt.value === value);
+    setDisplayValue(selectedOption?.label || value || '');
+    const duration = animation?.disabled ? 0 : animation?.duration ?? 150;
+    setTimeout(() => {
+      setIsOpen(false);
+      setIsClosing(false);
+    }, duration);
+  }, [
+    isOpen,
+    isClosing,
+    animation?.disabled,
+    animation?.duration,
+    options,
+    value,
+  ]);
 
   const visibleOptions = useMemo(() => {
     if (!virtualScrollEnabled) return filteredOptions;
@@ -181,9 +206,10 @@ const FlexibleInput: React.FC<FlexibleInputProps> = ({
   useEffect(() => {
     const selectedOption = options.find((opt) => opt.value === value);
     const newDisplayValue = selectedOption?.label || value || '';
-    setSearchValue(newDisplayValue);
-    setDisplayValue(newDisplayValue);
-  }, [value, options]);
+    if (!isSearching) {
+      setDisplayValue(newDisplayValue);
+    }
+  }, [value, options, isSearching]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -191,8 +217,7 @@ const FlexibleInput: React.FC<FlexibleInputProps> = ({
         containerRef.current &&
         !containerRef.current.contains(event.target as Node)
       ) {
-        setIsOpen(false);
-        setHighlightedIndex(-1);
+        closeDropdown();
       }
     };
 
@@ -203,8 +228,7 @@ const FlexibleInput: React.FC<FlexibleInputProps> = ({
         isOpen
       ) {
         event.preventDefault();
-        setIsOpen(false);
-        setHighlightedIndex(-1);
+        closeDropdown();
         inputRef.current?.blur();
       }
     };
@@ -220,7 +244,55 @@ const FlexibleInput: React.FC<FlexibleInputProps> = ({
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleEscape);
     };
-  }, [isOpen, keyboard?.closeOnEscape, keyboard?.enabled]);
+  }, [isOpen, keyboard?.closeOnEscape, keyboard?.enabled, closeDropdown]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    if (dropdownPlacement === 'auto' && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const spaceBelow = viewportHeight - rect.bottom;
+      const spaceAbove = rect.top;
+      const needed = containerHeight;
+      setResolvedPlacement(
+        spaceBelow >= needed || spaceBelow >= spaceAbove ? 'bottom' : 'top',
+      );
+    } else {
+      setResolvedPlacement(dropdownPlacement);
+    }
+  }, [isOpen, dropdownPlacement, containerHeight]);
+
+  useEffect(() => {
+    if (!isOpen || highlightedIndex < 0 || !dropdownRef.current) return;
+
+    const container = dropdownRef.current;
+    const currentScroll = container.scrollTop;
+    const targetTop = highlightedIndex * itemHeight;
+    const targetBottom = targetTop + itemHeight;
+    const visibleTop = currentScroll;
+    const visibleBottom = currentScroll + containerHeight;
+
+    let nextScroll = currentScroll;
+    if (targetTop < visibleTop) {
+      nextScroll = targetTop;
+    } else if (targetBottom > visibleBottom) {
+      nextScroll = targetBottom - containerHeight;
+    }
+
+    if (nextScroll !== currentScroll) {
+      container.scrollTo({ top: nextScroll });
+      if (virtualScrollEnabled) {
+        throttledScrollRef.current?.(nextScroll);
+      }
+    }
+  }, [
+    highlightedIndex,
+    isOpen,
+    itemHeight,
+    containerHeight,
+    virtualScrollEnabled,
+  ]);
 
   const containerClasses = [
     'flexible-input',
@@ -239,16 +311,19 @@ const FlexibleInput: React.FC<FlexibleInputProps> = ({
   const handleInputChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const newValue = event.target.value;
-      setDisplayValue(newValue); // Update display immediately for responsive typing
+      setDisplayValue(newValue);
+      setIsSearching(true);
       if (search?.debounceMs && debouncedSearchRef.current) {
         debouncedSearchRef.current(newValue);
       } else {
-        setSearchValue(newValue);
+        setSearchQuery(newValue);
       }
-      setIsOpen(true);
-      setHighlightedIndex(-1);
+      if (!isOpen) {
+        setIsOpen(true);
+      }
+      setHighlightedIndex(0);
     },
-    [search?.debounceMs],
+    [search?.debounceMs, isOpen],
   );
 
   const handleOptionClick = useCallback(
@@ -259,11 +334,10 @@ const FlexibleInput: React.FC<FlexibleInputProps> = ({
       if (selectedOption?.disabled) return;
 
       onChange(optionValue);
-      setIsOpen(false);
-      setHighlightedIndex(-1);
+      closeDropdown();
       inputRef.current?.focus();
     },
-    [onChange, options, disabled, readonly],
+    [onChange, options, disabled, readonly, closeDropdown],
   );
 
   const handleClear = useCallback(
@@ -272,13 +346,13 @@ const FlexibleInput: React.FC<FlexibleInputProps> = ({
       if (disabled || readonly) return;
 
       onChange('');
-      setSearchValue('');
+      setSearchQuery('');
       setDisplayValue('');
-      setIsOpen(false);
-      setHighlightedIndex(-1);
+      setIsSearching(false);
+      closeDropdown();
       inputRef.current?.focus();
     },
-    [onChange, disabled, readonly],
+    [onChange, disabled, readonly, closeDropdown],
   );
 
   const handleKeyDown = useCallback(
@@ -321,13 +395,19 @@ const FlexibleInput: React.FC<FlexibleInputProps> = ({
 
         case 'Tab':
           if (isOpen) {
-            setIsOpen(false);
-            setHighlightedIndex(-1);
+            closeDropdown();
           }
           break;
       }
     },
-    [keyboard, isOpen, highlightedIndex, filteredOptions, handleOptionClick],
+    [
+      keyboard,
+      isOpen,
+      highlightedIndex,
+      filteredOptions,
+      handleOptionClick,
+      closeDropdown,
+    ],
   );
 
   const handleDropdownScroll = useCallback(
@@ -338,6 +418,11 @@ const FlexibleInput: React.FC<FlexibleInputProps> = ({
   );
 
   const renderInput = () => {
+    const highlightedOptionId =
+      highlightedIndex >= 0 && filteredOptions[highlightedIndex]
+        ? `${id || 'flexible-input'}-option-${highlightedIndex}`
+        : undefined;
+
     const commonProps = {
       ref: inputRef as React.RefObject<HTMLInputElement>,
       disabled,
@@ -345,7 +430,12 @@ const FlexibleInput: React.FC<FlexibleInputProps> = ({
       placeholder,
       className: 'flexible-input__input',
       onFocus: (e: React.FocusEvent) => {
-        if (!readonly) setIsOpen(true);
+        if (!readonly && inputType !== 'select') {
+          setIsOpen(true);
+          if (inputType === 'combobox' && inputRef.current) {
+            (inputRef.current as HTMLInputElement).select();
+          }
+        }
         onFocus?.(e);
       },
       onBlur: (e: React.FocusEvent) => {
@@ -361,6 +451,9 @@ const FlexibleInput: React.FC<FlexibleInputProps> = ({
       'aria-describedby': accessibility?.ariaDescribedBy,
       'aria-expanded': isOpen,
       'aria-autocomplete': searchEnabled ? ('list' as const) : undefined,
+      'aria-activedescendant': isOpen ? highlightedOptionId : undefined,
+      'aria-controls': isOpen ? `${id || 'flexible-input'}-listbox` : undefined,
+      role: 'combobox',
       readOnly: readonly,
     };
 
@@ -407,7 +500,23 @@ const FlexibleInput: React.FC<FlexibleInputProps> = ({
         </label>
       )}
 
-      <div className="flexible-input__input-container">
+      <div
+        className="flexible-input__input-container"
+        onClick={() => {
+          if (disabled || readonly) return;
+          if (inputType === 'select' && !searchEnabled) {
+            if (isOpen && !isClosing) {
+              closeDropdown();
+            } else if (!isOpen && !isClosing) {
+              setIsOpen(true);
+              inputRef.current?.focus();
+            }
+          } else if (!isOpen && !isClosing) {
+            setIsOpen(true);
+            inputRef.current?.focus();
+          }
+        }}
+      >
         {renderInput()}
 
         {clearable && value && !disabled && !readonly && (
@@ -422,78 +531,100 @@ const FlexibleInput: React.FC<FlexibleInputProps> = ({
           </button>
         )}
 
-        <svg
+        <span
           className={`flexible-input__arrow ${isOpen ? 'open' : ''}`}
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
           aria-hidden="true"
         >
-          {icons?.arrow || <path d="M19 9l-7 7-7-7" />}
-        </svg>
+          {icons?.arrow || (
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M19 9l-7 7-7-7" />
+            </svg>
+          )}
+        </span>
+
+        {(isOpen || isClosing) && (
+          <div
+            className={`flexible-input__options ${resolvedPlacement} ${
+              isClosing ? 'closing' : ''
+            }`}
+            ref={dropdownRef}
+            style={dropdownStyle}
+            onScroll={handleDropdownScroll}
+            onClick={(e) => e.stopPropagation()}
+            role="listbox"
+            id={`${id || 'flexible-input'}-listbox`}
+            aria-label={`${label || 'Select'} options`}
+          >
+            {virtualScrollEnabled && (
+              <div style={{ height: totalHeight, position: 'relative' }}>
+                <div style={{ transform: `translateY(${offsetY}px)` }}>
+                  {visibleOptions.map((option, idx) => {
+                    const actualIdx = option.actualIndex ?? idx;
+                    return (
+                      <div
+                        key={option.value}
+                        id={`${id || 'flexible-input'}-option-${actualIdx}`}
+                        className={`flexible-input__option ${
+                          value === option.value ? 'selected' : ''
+                        } ${
+                          highlightedIndex === actualIdx ? 'highlighted' : ''
+                        } ${option.disabled ? 'disabled' : ''}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOptionClick(option.value);
+                        }}
+                        style={{ height: `${itemHeight}px` }}
+                        role="option"
+                        aria-selected={value === option.value}
+                        aria-disabled={option.disabled}
+                      >
+                        {renderOption
+                          ? renderOption(option)
+                          : option.rendered ?? option.label}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {!virtualScrollEnabled &&
+              filteredOptions.map((option, idx) => (
+                <div
+                  key={option.value}
+                  id={`${id || 'flexible-input'}-option-${idx}`}
+                  className={`flexible-input__option ${
+                    value === option.value ? 'selected' : ''
+                  } ${highlightedIndex === idx ? 'highlighted' : ''} ${
+                    option.disabled ? 'disabled' : ''
+                  }`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleOptionClick(option.value);
+                  }}
+                  role="option"
+                  aria-selected={value === option.value}
+                  aria-disabled={option.disabled}
+                >
+                  {renderOption
+                    ? renderOption(option)
+                    : option.rendered ?? option.label}
+                </div>
+              ))}
+
+            {filteredOptions.length === 0 && (
+              <div className="flexible-input__no-results">
+                {search?.noResultsText || 'هیچ نتیجه‌ای یافت نشد'}
+              </div>
+            )}
+          </div>
+        )}
       </div>
-
-      {isOpen && (
-        <div
-          className={`flexible-input__options ${dropdownPlacement}`}
-          ref={dropdownRef}
-          style={dropdownStyle}
-          onScroll={handleDropdownScroll}
-          role="listbox"
-          aria-label={`${label || 'Select'} options`}
-        >
-          {virtualScrollEnabled && (
-            <div style={{ height: totalHeight, position: 'relative' }}>
-              <div style={{ transform: `translateY(${offsetY}px)` }}>
-                {visibleOptions.map((option, idx) => (
-                  <div
-                    key={option.value}
-                    className={`flexible-input__option ${
-                      value === option.value ? 'selected' : ''
-                    } ${
-                      highlightedIndex === (option.actualIndex ?? idx)
-                        ? 'highlighted'
-                        : ''
-                    } ${option.disabled ? 'disabled' : ''}`}
-                    onClick={() => handleOptionClick(option.value)}
-                    style={{ height: `${itemHeight}px` }}
-                    role="option"
-                    aria-selected={value === option.value}
-                    aria-disabled={option.disabled}
-                  >
-                    {option.label}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {!virtualScrollEnabled &&
-            filteredOptions.map((option, idx) => (
-              <div
-                key={option.value}
-                className={`flexible-input__option ${
-                  value === option.value ? 'selected' : ''
-                } ${highlightedIndex === idx ? 'highlighted' : ''} ${
-                  option.disabled ? 'disabled' : ''
-                }`}
-                onClick={() => handleOptionClick(option.value)}
-                role="option"
-                aria-selected={value === option.value}
-                aria-disabled={option.disabled}
-              >
-                {option.label}
-              </div>
-            ))}
-
-          {filteredOptions.length === 0 && (
-            <div className="flexible-input__no-results">
-              {search?.placeholder || 'هیچ نتیجه‌ای یافت نشد'}
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 };

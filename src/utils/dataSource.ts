@@ -1,3 +1,8 @@
+import {
+  DEFAULT_CACHE_DURATION_MS,
+  DEFAULT_CACHE_KEY,
+  DEFAULT_DATA_URL,
+} from '../constants';
 import type { Province } from '../types';
 
 export interface DataSourceConfig {
@@ -9,17 +14,14 @@ export interface DataSourceConfig {
   onSuccess?: (data: Province[]) => void;
 }
 
-const DEFAULT_URL =
-  'https://gist.githubusercontent.com/mahdialavitabar/115d131d6fe1f56e1f177aa4c741739d/raw/a070a0fe4f82a8a378c67d42abda3046134ed97c/data.json';
-
 export class DataSource {
   private config: Required<DataSourceConfig>;
 
   constructor(config: DataSourceConfig = {}) {
     this.config = {
-      url: config.url || DEFAULT_URL,
-      cacheKey: config.cacheKey || 'iran-regions-provinces-data',
-      cacheDuration: config.cacheDuration || 1000 * 60 * 60 * 24,
+      url: config.url || DEFAULT_DATA_URL,
+      cacheKey: config.cacheKey || DEFAULT_CACHE_KEY,
+      cacheDuration: config.cacheDuration || DEFAULT_CACHE_DURATION_MS,
       fallbackData: config.fallbackData || [],
       onError: config.onError || (() => {}),
       onSuccess: config.onSuccess || (() => {}),
@@ -58,7 +60,11 @@ export class DataSource {
         return cachedData;
       }
 
-      return this.config.fallbackData;
+      if (this.config.fallbackData.length > 0) {
+        return this.config.fallbackData;
+      }
+
+      throw errorObj;
     }
   }
 

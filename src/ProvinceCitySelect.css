@@ -1,4 +1,5 @@
-:root {
+/* Default theme variables - scoped to component to avoid global namespace pollution */
+.province-city-select {
   --iran-regions-color-primary: #3b82f6;
   --iran-regions-color-primaryHover: #2563eb;
   --iran-regions-color-background: #ffffff;
@@ -32,9 +33,7 @@
   --iran-regions-transition-fast: 150ms ease;
   --iran-regions-transition-normal: 200ms ease;
   --iran-regions-transition-slow: 300ms ease;
-}
 
-.province-city-select {
   direction: rtl;
   display: flex;
   flex-direction: column;
@@ -148,6 +147,25 @@
   --iran-regions-color-disabled: #64748b;
   --iran-regions-color-shadow: rgba(0, 0, 0, 0.3);
   --iran-regions-color-focusRing: rgba(96, 165, 250, 0.3);
+}
+
+.province-city-select.theme-light {
+  --iran-regions-color-primary: #3b82f6;
+  --iran-regions-color-primaryHover: #2563eb;
+  --iran-regions-color-background: #ffffff;
+  --iran-regions-color-surface: #f8fafc;
+  --iran-regions-color-text: #1f2937;
+  --iran-regions-color-textSecondary: #6b7280;
+  --iran-regions-color-border: #e5e7eb;
+  --iran-regions-color-borderHover: #3b82f6;
+  --iran-regions-color-borderFocus: #3b82f6;
+  --iran-regions-color-error: #ef4444;
+  --iran-regions-color-disabled: #9ca3af;
+  --iran-regions-color-shadow: rgba(0, 0, 0, 0.1);
+  --iran-regions-color-focusRing: rgba(59, 130, 246, 0.2);
+  --iran-regions-radius-sm: 0.25rem;
+  --iran-regions-radius-md: 0.5rem;
+  --iran-regions-radius-lg: 0.75rem;
 }
 
 .province-city-select.theme-modern {

@@ -19,6 +19,8 @@ export interface ProvinceCity {
 export interface SelectOption {
   value: string;
   label: string;
+  rendered?: ReactNode;
+  meta?: unknown;
   disabled?: boolean;
   actualIndex?: number;
 }
@@ -76,6 +78,7 @@ export interface SearchConfig {
   fuzzy?: boolean;
   placeholder?: string;
   minCharacters?: number;
+  noResultsText?: string;
 }
 
 export interface RTLConfig {

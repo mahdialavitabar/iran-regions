@@ -37,6 +37,8 @@
   transition: all var(--iran-regions-transition-normal, 200ms ease);
   outline: none;
   cursor: pointer;
+  /* Better text selection for combobox */
+  text-overflow: ellipsis;
 }
 
 .flexible-input__input::placeholder {
@@ -106,6 +108,14 @@
   color: var(--iran-regions-color-textSecondary, #6b7280);
   transition: transform var(--iran-regions-transition-fast, 150ms ease);
   pointer-events: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flexible-input__arrow svg {
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 .flexible-input__arrow.open {
@@ -114,6 +124,8 @@
 
 .flexible-input__options {
   position: absolute;
+  top: 100%;
+  inset-inline-start: 0;
   z-index: 1000;
   width: 100%;
   margin-top: var(--iran-regions-spacing-xs, 0.25rem);
@@ -123,7 +135,8 @@
   box-shadow: 0 10px 25px var(--iran-regions-color-shadow, rgba(0, 0, 0, 0.1));
   overflow-y: auto;
   max-height: 300px;
-  animation: dropdownSlide var(--iran-regions-transition-fast, 150ms ease);
+  animation: dropdownSlideIn var(--iran-regions-transition-fast, 150ms) ease
+    forwards;
 }
 
 .flexible-input__options.top {
@@ -132,7 +145,7 @@
   margin-bottom: var(--iran-regions-spacing-xs, 0.25rem);
 }
 
-@keyframes dropdownSlide {
+@keyframes dropdownSlideIn {
   from {
     opacity: 0;
     transform: translateY(-8px);
@@ -141,6 +154,23 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+@keyframes dropdownSlideOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+.flexible-input__options.closing {
+  animation: dropdownSlideOut var(--iran-regions-transition-fast, 150ms) ease
+    forwards;
+  pointer-events: none;
 }
 
 .flexible-input__options::-webkit-scrollbar {

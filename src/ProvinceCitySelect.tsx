@@ -1,4 +1,11 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import FlexibleInput from './flexibleSelect';
 import './ProvinceCitySelect.css';
 import type {
@@ -254,7 +261,22 @@ const ProvinceCitySelect: React.FC<ProvinceCitySelectProps> = memo(
     const [provinces, setProvinces] = useState<Province[]>([]);
     const [isLoading, setIsLoading] = useState(!customProvinces);
     const [error, setError] = useState<string | null>(null);
-    const [isTouched, setIsTouched] = useState(false); // Track if user has interacted
+    const [isTouched, setIsTouched] = useState(false);
+
+    const dataSourceRef = useRef<DataSource | null>(null);
+    const effectiveDataSource = dataSource || defaultDataSource;
+
+    const dataSourceUrlRef = useRef<string | undefined>(undefined);
+
+    const customThemeStyle = useMemo(() => {
+      if (!customTheme) return undefined;
+      return Object.fromEntries(
+        Object.entries(customTheme).map(([key, value]) => [
+          key.startsWith('--') ? key : `--iran-regions-${key}`,
+          value,
+        ]),
+      );
+    }, [customTheme]);
 
     const isControlled = value !== undefined;
     const currentValue = isControlled ? value : internalValue;
@@ -271,7 +293,9 @@ const ProvinceCitySelect: React.FC<ProvinceCitySelectProps> = memo(
 
     const rtlEnabled =
       rtl?.enabled ??
-      (rtl?.autoDetect ? /[\u0600-\u06FF]/.test(labels.province || '') : true);
+      (rtl?.autoDetect ?? true
+        ? /[\u0600-\u06FF]/.test(labels.province || '')
+        : false);
     const actualDirection = direction || (rtlEnabled ? 'rtl' : 'ltr');
 
     const provinceOptions = useMemo(() => {
@@ -292,8 +316,16 @@ const ProvinceCitySelect: React.FC<ProvinceCitySelectProps> = memo(
       return filtered.map((p) => ({
         value: p.name,
         label: p.name,
+        rendered: renderProvince ? renderProvince(p) : undefined,
+        meta: p,
       }));
-    }, [provinces, customProvinces, filterProvinces, sortProvinces]);
+    }, [
+      provinces,
+      customProvinces,
+      filterProvinces,
+      sortProvinces,
+      renderProvince,
+    ]);
 
     const cityOptions = useMemo(() => {
       const province = (customProvinces || provinces).find(
@@ -317,6 +349,10 @@ const ProvinceCitySelect: React.FC<ProvinceCitySelectProps> = memo(
       return cities.map((city) => ({
         value: city,
         label: city,
+        rendered: renderCity
+          ? renderCity(city, currentValue.province)
+          : undefined,
+        meta: { province: currentValue.province },
       }));
     }, [
       provinces,
@@ -324,7 +360,23 @@ const ProvinceCitySelect: React.FC<ProvinceCitySelectProps> = memo(
       currentValue.province,
       filterCities,
       sortCities,
+      renderCity,
     ]);
+
+    const fetchData = useCallback(async () => {
+      setIsLoading(true);
+      try {
+        const data = await effectiveDataSource.fetchProvinces();
+        setProvinces(data);
+        setError(null);
+      } catch (err) {
+        const errorMessage =
+          err instanceof Error ? err.message : 'Failed to load provinces';
+        setError(errorMessage);
+      } finally {
+        setIsLoading(false);
+      }
+    }, [effectiveDataSource]);
 
     useEffect(() => {
       if (customProvinces) {
@@ -333,24 +385,16 @@ const ProvinceCitySelect: React.FC<ProvinceCitySelectProps> = memo(
         return;
       }
 
-      const source = dataSource || defaultDataSource;
-      const fetchProvinces = async () => {
-        setIsLoading(true);
-        try {
-          const data = await source.fetchProvinces();
-          setProvinces(data);
-          setError(null);
-        } catch (err) {
-          const errorMessage =
-            err instanceof Error ? err.message : 'Failed to load provinces';
-          setError(errorMessage);
-        } finally {
-          setIsLoading(false);
-        }
-      };
+      if (
+        dataSourceRef.current === effectiveDataSource &&
+        provinces.length > 0
+      ) {
+        return;
+      }
+      dataSourceRef.current = effectiveDataSource;
 
-      fetchProvinces();
-    }, [customProvinces, dataSource]);
+      fetchData();
+    }, [customProvinces, effectiveDataSource, fetchData, provinces.length]);
 
     useEffect(() => {
       if (!showErrorMessages || !isTouched) {
@@ -430,27 +474,47 @@ const ProvinceCitySelect: React.FC<ProvinceCitySelectProps> = memo(
       .filter(Boolean)
       .join(' ');
 
-    const commonInputProps = {
-      theme,
-      size,
-      variant,
-      disabled: isDisabled || isLoading,
-      required: isRequired,
-      error: !!errorMessageState || !!error,
-      inputType: selectorType,
-      accessibility,
-      animation,
-      dropdown,
-      search,
-      keyboard,
-      icons,
-      tabIndex,
-    };
+    const commonInputProps = useMemo(
+      () => ({
+        theme,
+        size,
+        variant,
+        disabled: isDisabled || isLoading,
+        required: isRequired,
+        error: !!errorMessageState || !!error,
+        inputType: selectorType,
+        accessibility,
+        animation,
+        dropdown,
+        search,
+        keyboard,
+        icons,
+        tabIndex,
+      }),
+      [
+        theme,
+        size,
+        variant,
+        isDisabled,
+        isLoading,
+        isRequired,
+        errorMessageState,
+        error,
+        selectorType,
+        accessibility,
+        animation,
+        dropdown,
+        search,
+        keyboard,
+        icons,
+        tabIndex,
+      ],
+    );
 
     return (
       <div
         className={containerClasses}
-        style={{ ...containerStyle, ...style }}
+        style={{ ...customThemeStyle, ...containerStyle, ...style }}
         id={id}
         data-testid={dataTestId}
         dir={actualDirection}
@@ -464,6 +528,11 @@ const ProvinceCitySelect: React.FC<ProvinceCitySelectProps> = memo(
             value={currentValue.province}
             onChange={handleProvinceChange}
             options={provinceOptions}
+            renderOption={
+              renderProvince
+                ? (option) => renderProvince(option.meta as Province)
+                : undefined
+            }
             placeholder={placeholders.province}
             label={labels.province}
             className={provinceClassName}
@@ -485,6 +554,16 @@ const ProvinceCitySelect: React.FC<ProvinceCitySelectProps> = memo(
             value={currentValue.city}
             onChange={handleCityChange}
             options={cityOptions}
+            renderOption={
+              renderCity
+                ? (option) =>
+                    renderCity(
+                      option.value,
+                      (option.meta as { province: string } | undefined)
+                        ?.province || currentValue.province,
+                    )
+                : undefined
+            }
             placeholder={placeholders.city}
             disabled={!currentValue.province || isDisabled || isLoading}
             label={labels.city}
@@ -523,16 +602,20 @@ const ProvinceCitySelect: React.FC<ProvinceCitySelectProps> = memo(
             />
           ))}
 
-        {error && errorConfig && (
-          <ErrorMessage
-            message={error}
-            className={errorClassName}
-            style={errorStyle}
-            showRetry={errorConfig.retryButton}
-            onRetry={errorConfig.onRetry}
-            icon={icons?.error}
-          />
-        )}
+        {error &&
+          errorConfig &&
+          (errorConfig.component ? (
+            errorConfig.component
+          ) : (
+            <ErrorMessage
+              message={error}
+              className={errorClassName}
+              style={errorStyle}
+              showRetry={errorConfig.retryButton}
+              onRetry={errorConfig.onRetry || fetchData}
+              icon={errorConfig.showIcon === false ? null : icons?.error}
+            />
+          ))}
       </div>
     );
   },
