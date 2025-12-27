@@ -11,7 +11,7 @@ function App() {
       onChange={setLocation}
       theme="light"
       size="md"
-      selectorType="combobox"
+      selectorType="select"
       variant="outlined"
       isRequired
       labels={{
